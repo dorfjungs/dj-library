@@ -27,7 +27,7 @@ goog.inherits(
  *     optContent Body data.
  * @param {Object|goog.structs.Map=} optHeaders Map of headers to add to the
  *     request.
- * @return {goog.promise}
+ * @return {goog.Promise}
  */
 dj.http.Request.send = function(url, optMethod, optContent, optHeaders)
 {

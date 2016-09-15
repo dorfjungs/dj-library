@@ -174,7 +174,7 @@ dj.components.OverlayComponent.prototype.init = function()
 	     */
 
 	    this.layer_ = domHelper.createDom('div', 'main-overlay', [
-	        this.closeBtn_ = domHelper.createDom('div', 'main-overlay-close main-close-btn'),
+	        this.closeBtn_ = domHelper.createDom('div', 'main-overlay-close main-close-btn fa fa-times'),
 	        this.layerContent_ = domHelper.createDom('div', 'main-overlay-content')
 	    ]);
 
@@ -223,7 +223,7 @@ dj.components.OverlayComponent.prototype.enterComponent = function()
      * with the identifier
      */
 
-    goog.array.forEach(this.getElementsByClass(dj.components.OverlayComponent.TRIGGER_IDENTIFIER),
+    goog.array.forEach(goog.dom.getElementsByClass(dj.components.OverlayComponent.TRIGGER_IDENTIFIER),
         this.addOverlay, this);
 };
 

@@ -8,7 +8,7 @@ goog.require('goog.json');
 
 /**
  * @constructor
- * @extends(goog.events.EventTarget)
+ * @extends {goog.events.EventTarget}
  */
 dj.http.Request = function()
 {

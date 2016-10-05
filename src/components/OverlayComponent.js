@@ -173,8 +173,8 @@ dj.components.OverlayComponent.prototype.init = function()
 	     * Create initial layer element
 	     */
 
+        this.closeBtn_ = domHelper.createDom('div', 'main-overlay-close main-close-btn fa fa-times');
 	    this.layer_ = domHelper.createDom('div', 'main-overlay', [
-	        this.closeBtn_ = domHelper.createDom('div', 'main-overlay-close main-close-btn fa fa-times'),
 	        this.layerContent_ = domHelper.createDom('div', 'main-overlay-content')
 	    ]);
 
@@ -186,6 +186,13 @@ dj.components.OverlayComponent.prototype.init = function()
 	     */
 
 	    goog.dom.appendChild(goog.dom.getDocument().body, this.layer_);
+
+         /**
+          * Colllect triggers
+          * with the identifier
+          */
+        goog.array.forEach(goog.dom.getElementsByClass(dj.components.OverlayComponent.TRIGGER_IDENTIFIER),
+            this.addOverlay, this);
 
 	    /**
 	     * Resolve async
@@ -217,14 +224,6 @@ dj.components.OverlayComponent.prototype.enterComponent = function()
         this.getHandler().listen(this.closeBtn_, goog.events.EventType.CLICK,
             this.handleCloseBtnClick_);
     }
-
-    /**
-     * Colllect triggers
-     * with the identifier
-     */
-
-    goog.array.forEach(goog.dom.getElementsByClass(dj.components.OverlayComponent.TRIGGER_IDENTIFIER),
-        this.addOverlay, this);
 };
 
 /**
@@ -279,6 +278,15 @@ dj.components.OverlayComponent.prototype.getModelByTrigger_ = function(trigger)
     }
 
     return null;
+};
+
+/**
+ * @param {Element} trigger
+ * @return {dj.models.OverlayModel}
+ */
+dj.components.OverlayComponent.prototype.getModelByTrigger = function(trigger)
+{
+    return this.getModelByTrigger_(trigger);
 };
 
 /**
@@ -395,6 +403,14 @@ dj.components.OverlayComponent.prototype.setHistoryByModel_ = function(model)
 dj.components.OverlayComponent.prototype.resetHistoryState_ = function()
 {
     this.historyReplaceState_(this.defaultLocation_);
+};
+
+/**
+ * @param {dj.models.OverlayModel} model
+ */
+dj.components.OverlayComponent.prototype.open = function(model)
+{
+    this.openWithModel_(model);
 };
 
 /**
@@ -531,6 +547,17 @@ dj.components.OverlayComponent.prototype.parseLayerContent_ = function(content)
      */
 
     this.layerContent_.innerHTML = content;
+
+    /**
+     * Append close btn if class
+     * was found
+     */
+
+    var closeBtn = goog.dom.getElementByClass('overlay-close', this.layerContent_);
+
+    if (closeBtn) {
+        goog.dom.appendChild(closeBtn, this.closeBtn_);
+    }
 
     /**
      * Remove loading class and

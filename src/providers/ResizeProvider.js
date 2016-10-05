@@ -82,7 +82,7 @@ dj.providers.ResizeProvider.prototype.onResize = function(callback, optContext)
 		callback = goog.bind(callback, optContext, this.windowSize_);
 	}
 	else {
-		callack = goog.bind(callback, callback, this.windowSize_);
+		callback = goog.bind(callback, callback, this.windowSize_);
 	}
 
 	this.callacks_.push(callback);

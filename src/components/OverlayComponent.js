@@ -15,6 +15,7 @@ goog.require('goog.math');
 goog.require('goog.Promise');
 goog.require('goog.math.Coordinate');
 goog.require('goog.async.nextTick');
+goog.require('goog.Uri.QueryData');
 
 /**
  * This component collects all overlays below
@@ -98,6 +99,12 @@ dj.components.OverlayComponent = function(manager)
      * @type {string}
      */
     this.defaultLocation_ = location.href;
+
+    /**
+     * @private
+     * @type {Function}
+     */
+    this.openResolve_ = null;
 };
 
 goog.inherits(
@@ -250,6 +257,14 @@ dj.components.OverlayComponent.prototype.addOverlay = function(trigger)
 };
 
 /**
+ * @param {dj.models.OverlayModel} model
+ */
+dj.components.OverlayComponent.prototype.addModel = function(model)
+{
+    this.overlays_.push(model);
+};
+
+/**
  * @private
  * @param  {Element} trigger
  * @return {dj.models.OverlayModel}
@@ -311,20 +326,38 @@ dj.components.OverlayComponent.prototype.getModelByUrl_ = function(url)
  */
 dj.components.OverlayComponent.prototype.handleCloseBtnClick_ = function(event)
 {
-    this.resetHistoryState_();
-    this.enableLayer_(false);
+    this.close();
+};
 
-    /**
-     * Scroll back to the position
-     * of the trigger, so the scroll
-     * position won't stuck on 0 (top)
-     */
+/**
+ *
+ */
+dj.components.OverlayComponent.prototype.close = function()
+{
+    if (this.lastModel_) {
+        this.resetHistoryState_();
+        this.enableLayer_(false);
 
-    if (this.lastModel_.getAllowJumpback()) {
-        goog.Timer.callOnce(function(){
-            this.scrollToModel_(this.lastModel_);
-        }, 0, this);
+        /**
+         * Scroll back to the position
+         * of the trigger, so the scroll
+         * position won't stuck on 0 (top)
+         */
+
+        if (this.lastModel_.getAllowJumpback()) {
+            goog.Timer.callOnce(function(){
+                this.scrollToModel_(this.lastModel_);
+            }, 0, this);
+        }
     }
+};
+
+/**
+ * @return {Element}
+ */
+dj.components.OverlayComponent.prototype.getLayerElement = function()
+{
+    return this.layer_;
 };
 
 /**
@@ -333,7 +366,7 @@ dj.components.OverlayComponent.prototype.handleCloseBtnClick_ = function(event)
  */
 dj.components.OverlayComponent.prototype.scrollToModel_ = function(model)
 {
-    if (model) {
+    if (model && model.getTrigger()) {
         var offset = goog.style.getPageOffset(model.getTrigger());
         goog.dom.getWindow()['scrollTo'](offset.x, offset.y);
     }
@@ -407,22 +440,27 @@ dj.components.OverlayComponent.prototype.resetHistoryState_ = function()
 
 /**
  * @param {dj.models.OverlayModel} model
+ * @param {boolean=} optForceReload
+ * @param {goog.structs.Map<string, string>=} optContent
+ * @return {goog.Promise}
  */
-dj.components.OverlayComponent.prototype.open = function(model)
+dj.components.OverlayComponent.prototype.open = function(model, optContent, optForceReload)
 {
-    this.openWithModel_(model);
+    return this.openWithModel_(model, optContent, optForceReload);
 };
 
 /**
  * @private
- * @param  {dj.models.OverlayModel} model
+ * @param {dj.models.OverlayModel} model
+ * @param {boolean=} optForceReload
+ * @param {goog.structs.Map<string, string>=} optContent
+ * @return {goog.Promise}
  */
-dj.components.OverlayComponent.prototype.openWithModel_ = function(model)
+dj.components.OverlayComponent.prototype.openWithModel_ = function(model, optContent, optForceReload)
 {
     if ( ! model) {
-        return;
+        return goog.Promise.reject();
     }
-
 
     /**
      * Save scroll position
@@ -473,20 +511,32 @@ dj.components.OverlayComponent.prototype.openWithModel_ = function(model)
      * reloading the whole page
      */
 
-    if (model.hasContent()) {
-        this.parseLayerContent_(model.getContent());
-    }
-    else {
-        if ( ! this.layerXhr_.isActive()) {
-            /**
-             * Send xhr request with
-             * relevant informations
-             * from the given model
-             */
+    var forceReload = optForceReload || false;
+    var queryData = goog.Uri.QueryData.createFromMap(optContent || new goog.structs.Map());
 
-            this.layerXhr_.send(model.getUrl());
+    return new goog.Promise(function(resolve, reject){
+        this.openResolve_ = resolve;
+
+        if (model.hasContent() && !forceReload) {
+            this.parseLayerContent_(model.getContent());
+
+            goog.async.nextTick(this.openResolve_);
+            this.openResolve_ = null;
         }
-    }
+        else {
+            if ( ! this.layerXhr_.isActive()) {
+                /**
+                 * Send xhr request with
+                 * relevant informations
+                 * from the given model
+                 */
+                this.layerXhr_.send(model.getUrl() + '?' + queryData.toString(), 'GET');
+            }
+            else {
+                reject();
+            }
+        }
+    }, this);
 };
 
 /**
@@ -496,7 +546,7 @@ dj.components.OverlayComponent.prototype.openWithModel_ = function(model)
 dj.components.OverlayComponent.prototype.handleLayerXhrSuccess_ = function(event)
 {
     var content = event.target.getResponseText();
-    var model = this.getModelByUrl_(event.target.getLastUri());
+    var model = this.getModelByUrl_(event.target.getLastUri().split('?')[0]);
 
     /**
      * Save content for further
@@ -532,6 +582,11 @@ dj.components.OverlayComponent.prototype.handleLayerXhrSuccess_ = function(event
 
     preloader.preload().then(function(){
         this.parseLayerContent_(content);
+
+        if (this.openResolve_) {
+            goog.async.nextTick(this.openResolve_);
+            this.openResolve_ = null;
+        }
     }, null, this);
 };
 

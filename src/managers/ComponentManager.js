@@ -211,11 +211,18 @@ dj.managers.ComponentManager.prototype.enterComponent_ = function(component)
 					// Init current component
 					component.enterComponent();
 
-					resolve();
+					// Initializing check
+					if ( ! component.isInitialized()) {
+						reject('You need to call the parent function '
+							+ '"enterComponent" for your component: "'
+							+ component.getComponentIdentifier() + '"');
+					}
+					else {
+						resolve();
+					}
 				},
 				function(err) {
-					console.warn('Error while initializing component: ', err);
-					reject(err);
+					reject('Error while initializing component: ' + err);
 				},
 			this);
 		}

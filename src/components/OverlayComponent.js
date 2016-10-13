@@ -271,11 +271,18 @@ dj.components.OverlayComponent.prototype.addModel = function(model)
  */
 dj.components.OverlayComponent.prototype.createModel_ = function(trigger)
 {
+    var parameters = goog.json.parse(goog.dom.dataset.get(trigger, 'parameters') || null);
+
+    if (parameters) {
+        parameters = new goog.structs.Map(parameters);
+    }
+
     return new dj.models.OverlayModel(trigger,
         /** @type {string} */ (goog.dom.dataset.get(trigger, 'href')),
         trigger.getAttribute('href'),
         /** @type {string|undefined} */ (goog.dom.dataset.get(trigger, 'pushstate')),
-        /** @type {string|undefined} */ (goog.dom.dataset.get(trigger, 'jumpback'))
+        /** @type {string|undefined} */ (goog.dom.dataset.get(trigger, 'jumpback')),
+        parameters
     );
 };
 
@@ -512,7 +519,7 @@ dj.components.OverlayComponent.prototype.openWithModel_ = function(model, optCon
      */
 
     var forceReload = optForceReload || false;
-    var queryData = goog.Uri.QueryData.createFromMap(optContent || new goog.structs.Map());
+    var queryData = goog.Uri.QueryData.createFromMap(optContent || model.getParameters());
 
     return new goog.Promise(function(resolve, reject){
         this.openResolve_ = resolve;
@@ -530,7 +537,14 @@ dj.components.OverlayComponent.prototype.openWithModel_ = function(model, optCon
                  * relevant informations
                  * from the given model
                  */
-                this.layerXhr_.send(model.getUrl() + '?' + queryData.toString(), 'GET');
+
+                var url = model.getUrl();
+
+                if ( ! queryData.isEmpty()) {
+                    url += '?' + queryData.toString();
+                }
+
+                this.layerXhr_.send(url , 'GET');
             }
             else {
                 reject();

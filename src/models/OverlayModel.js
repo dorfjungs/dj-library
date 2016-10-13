@@ -7,8 +7,9 @@ goog.provide('dj.models.OverlayModel');
  * @param {string=} optPushStateUrl
  * @param {string=} optAllowPushState
  * @param {string=} optAllowJumpback
+ * @param {goog.structs.Map<string, string>=} optParameters
  */
-dj.models.OverlayModel = function(trigger, url, optPushStateUrl, optAllowPushState, optAllowJumpback)
+dj.models.OverlayModel = function(trigger, url, optPushStateUrl, optAllowPushState, optAllowJumpback, optParameters)
 {
     /**
      * The trigger element
@@ -60,6 +61,12 @@ dj.models.OverlayModel = function(trigger, url, optPushStateUrl, optAllowPushSta
     this.allowJumpback_ = optAllowJumpback && optAllowJumpback == 'false' ? false : true;
 
     /**
+     * @private
+     * @type {goog.structs.Map<string, string>}
+     */
+    this.parameters_ = optParameters || new goog.structs.Map();
+
+    /**
      * Cached content from
      * the previous use
      *
@@ -83,6 +90,22 @@ dj.models.OverlayModel.prototype.hasContent = function()
 dj.models.OverlayModel.prototype.setContent = function(content)
 {
     this.content_ = content;
+};
+
+/**
+ * @param {goog.structs.Map<string, string>} parameters
+ */
+dj.models.OverlayModel.prototype.setParameters = function(parameters)
+{
+    this.parameters_ = parameters;
+};
+
+/**
+ * @return {goog.structs.Map<string, string>}
+ */
+dj.models.OverlayModel.prototype.getParameters = function()
+{
+    return this.parameters_;
 };
 
 /**

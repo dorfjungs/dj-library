@@ -199,7 +199,7 @@ dj.components.OverlayComponent.prototype.init = function()
           * Colllect triggers
           * with the identifier
           */
-        goog.array.forEach(goog.dom.getElementsByClass(dj.components.OverlayComponent.TRIGGER_IDENTIFIER),
+        goog.array.forEach(this.getElementsByClass(dj.components.OverlayComponent.TRIGGER_IDENTIFIER),
             this.addOverlay, this);
 
 	    /**

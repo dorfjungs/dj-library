@@ -116,12 +116,14 @@ dj.components.BaseComponent.prototype.getComponentIdentifier = function()
  */
 dj.components.BaseComponent.prototype.checkManager_ = function()
 {
+	var ret = true;
+
 	if ( ! this.manager_) {
+		ret = false;
 		throw new Error('You need to pass the manager as a constructor argument to use it');
-		return false;
 	}
 
-	return true;
+	return ret;
 };
 
 /**

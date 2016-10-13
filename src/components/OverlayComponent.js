@@ -4,6 +4,7 @@ goog.provide('dj.components.OverlayComponent');
 goog.require('dj.components.BaseComponent');
 goog.require('dj.models.OverlayModel');
 goog.require('dj.async.ImagePreloader');
+goog.require('dj.managers.ComponentManager');
 
 // goog
 goog.require('goog.events');
@@ -27,7 +28,7 @@ goog.require('goog.Uri.QueryData');
  *
  * @constructor
  * @extends {dj.components.BaseComponent}
- * @param {dj.mangers.ComponentManager} manager
+ * @param {dj.managers.ComponentManager} manager
  */
 dj.components.OverlayComponent = function(manager)
 {
@@ -519,7 +520,9 @@ dj.components.OverlayComponent.prototype.openWithModel_ = function(model, optCon
      */
 
     var forceReload = optForceReload || false;
-    var queryData = goog.Uri.QueryData.createFromMap(optContent || model.getParameters());
+    var queryData = goog.Uri.QueryData.createFromMap(
+        /** @type {!goog.structs.Map<string, ?>} */ (optContent || model.getParameters())
+    );
 
     return new goog.Promise(function(resolve, reject){
         this.openResolve_ = resolve;

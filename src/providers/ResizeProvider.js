@@ -26,10 +26,10 @@ dj.providers.ResizeProvider = function()
 
 	// Set reisze listener
 	goog.events.listen(goog.dom.getWindow(), goog.events.EventType.RESIZE,
-		this.handleReisze_, false, this);
+		this.handleResize_, false, this);
 
 	// Initial resize on tick
-	goog.async.nextTick(this.handleReisze_, this);
+	goog.async.nextTick(this.handleResize_, this);
 };
 
 goog.inherits(
@@ -44,7 +44,7 @@ goog.addSingletonGetter(
 /**
  * @private
  */
-dj.providers.ResizeProvider.prototype.handleReisze_ = function(event)
+dj.providers.ResizeProvider.prototype.handleResize_ = function()
 {
 	var win = goog.dom.getWindow();
 

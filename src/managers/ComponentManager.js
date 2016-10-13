@@ -99,6 +99,8 @@ dj.managers.ComponentManager.prototype.update = function()
  */
 dj.managers.ComponentManager.prototype.addComponentElements_ = function(elements)
 {
+	elements = /** {IArrayLike<(Element|null)>} */ (elements);
+
 	goog.array.forEach(elements, this.initComponent_, this);
 	goog.array.forEach(elements, this.decorateComponent_, this);
 
@@ -122,16 +124,14 @@ dj.managers.ComponentManager.prototype.handleComponentStack_ = function()
 {
 	var keys = this.componentStack_.getKeys();
 
-	for (var i = 0, len = keys.length; i < len; i++) {
-		var component = this.componentStack_.get(keys[i]);
+	if (keys[0]) {
+		var component = this.componentStack_.get(keys[0]);
 
 		this.enterComponent_(component).then(function(id){
 			this.componentStack_.remove(id);
 			this.handleComponentStack_();
-		}.bind(this, keys[i]), null);
-
-		break;
-	};
+		}.bind(this, keys[0]), null);
+	}
 };
 
 /**

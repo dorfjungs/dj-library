@@ -45,7 +45,7 @@ dj.async.ImagePreloader.prototype.addSource = function(src)
 };
 
 /**
- * @param {Array<string>} src
+ * @param {Array<string>} srcs
  */
 dj.async.ImagePreloader.prototype.addSources = function(srcs)
 {

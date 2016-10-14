@@ -5,6 +5,7 @@ goog.require('dj.components.BaseComponent');
 goog.require('dj.models.OverlayModel');
 goog.require('dj.async.ImagePreloader');
 goog.require('dj.managers.ComponentManager');
+goog.require('dj.async.VideoPreloader');
 
 // goog
 goog.require('goog.events');
@@ -106,6 +107,18 @@ dj.components.OverlayComponent = function(manager)
      * @type {Function}
      */
     this.openResolve_ = null;
+
+    /**
+     * @private
+     * @type {string}
+     */
+    this.classes_ = '';
+
+    /**
+     * @private
+     * @type {dj.async.VideoPreloader}
+     */
+    this.videoPreloader_ = new dj.async.VideoPreloader();
 };
 
 goog.inherits(
@@ -177,12 +190,18 @@ dj.components.OverlayComponent.prototype.init = function()
 
 	    var domHelper = goog.dom.getDomHelper();
 
+        /**
+         * Get addiitonal classes
+         */
+
+        this.classes_ = goog.dom.dataset.get(this.getElement(), 'classes') || '';
+
 	    /**
 	     * Create initial layer element
 	     */
 
         this.closeBtn_ = domHelper.createDom('div', 'main-overlay-close main-close-btn fa fa-times');
-	    this.layer_ = domHelper.createDom('div', 'main-overlay', [
+	    this.layer_ = domHelper.createDom('div', 'main-overlay ' + this.classes_, [
 	        this.layerContent_ = domHelper.createDom('div', 'main-overlay-content')
 	    ]);
 
@@ -621,42 +640,51 @@ dj.components.OverlayComponent.prototype.parseLayerContent_ = function(content)
     this.layerContent_.innerHTML = content;
 
     /**
-     * Append close btn if class
-     * was found
+     * Get videos and wait for buffering
      */
 
-    var closeBtn = goog.dom.getElementByClass('overlay-close', this.layerContent_);
+    var videos = goog.dom.getElementsByTagNameAndClass('video', null, this.layerContent_);
 
-    if (closeBtn) {
-        goog.dom.appendChild(closeBtn, this.closeBtn_);
-    }
+    this.videoPreloader_.addVideoElements(/** @type {Array<HTMLVideoElement>} */ (videos));
+    this.videoPreloader_.preload().then(function(){
+        /**
+         * Append close btn if class
+         * was found
+         */
 
-    /**
-     * Remove loading class and
-     * activate the loaded class
-     */
+        var closeBtn = goog.dom.getElementByClass('overlay-close', this.layerContent_);
 
-    goog.dom.classlist.enable(this.layer_, this.loadedClass_, true);
-    goog.dom.classlist.enable(this.layer_, this.loadingClass_, false);
-
-    /**
-     * Update the components which
-     * were loaded with the new content
-     */
-
-    this.updateLayerComponents_();
-
-    /**
-     * Scroll to the 0 position
-     * so the user starts at the
-     * beginning of the layer
-     */
-
-    goog.Timer.callOnce(function(){
-        if (this.layerContent_.hasOwnProperty('scrollTop')) {
-            this.layerContent_['scrollTop'] = 0;
+        if (closeBtn) {
+            goog.dom.appendChild(closeBtn, this.closeBtn_);
         }
-    }, 0, this);
+
+        /**
+         * Remove loading class and
+         * activate the loaded class
+         */
+
+        goog.dom.classlist.enable(this.layer_, this.loadedClass_, true);
+        goog.dom.classlist.enable(this.layer_, this.loadingClass_, false);
+
+        /**
+         * Update the components which
+         * were loaded with the new content
+         */
+
+        this.updateLayerComponents_();
+
+        /**
+         * Scroll to the 0 position
+         * so the user starts at the
+         * beginning of the layer
+         */
+
+        goog.Timer.callOnce(function(){
+            if (this.layerContent_.hasOwnProperty('scrollTop')) {
+                this.layerContent_['scrollTop'] = 0;
+            }
+        }, 0, this);
+    }, null, this);
 };
 
 /**

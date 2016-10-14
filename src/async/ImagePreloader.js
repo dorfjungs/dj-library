@@ -41,7 +41,26 @@ dj.async.ImagePreloader = function(opt_srcs)
  */
 dj.async.ImagePreloader.prototype.addSource = function(src)
 {
-	this.sources_.push(src);
+	var multiPattern = /\[[0-9]+-[0-9]+]/gi;
+
+	if (multiPattern.test(src)) {
+		var match = src.match(multiPattern)[0];
+		var points = src.split('.');
+		var ext = points[points.length-1];
+		var path = src.replace(multiPattern, '').replace('.' + ext, '');
+
+		if (match) {
+			var start = parseInt(match.split('-')[0].replace('[', ''), 10);
+			var end = parseInt(match.split('-')[1].replace(']', ''), 10);
+
+			for (var i = start; i <= end; i++) {
+				this.sources_.push(path + i + '.' + ext);
+			}
+		}
+	}
+	else {
+		this.sources_.push(src);
+	}
 };
 
 /**
@@ -50,7 +69,7 @@ dj.async.ImagePreloader.prototype.addSource = function(src)
 dj.async.ImagePreloader.prototype.addSources = function(srcs)
 {
 	for (var i = 0, len = srcs.length; i < len; i++) {
-		this.sources_.push(srcs[i]);
+		this.addSource(srcs[i]);
 	}
 };
 

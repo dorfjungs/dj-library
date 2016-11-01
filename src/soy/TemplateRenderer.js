@@ -2,7 +2,9 @@ goog.provide('dj.soy.TemplateRenderer');
 
 // goog
 goog.require('goog.events.EventTarget');
+goog.require('goog.async.nextTick');
 goog.require('goog.structs.Map');
+goog.require('goog.Promise');
 goog.require('goog.soy');
 
 /**
@@ -61,6 +63,7 @@ dj.soy.TemplateRenderer.prototype.addTemplate = function(id, template)
 
 /**
  * @param {Element} root
+ * @return {goog.Promise}
  */
 dj.soy.TemplateRenderer.prototype.render = function(root)
 {
@@ -86,5 +89,9 @@ dj.soy.TemplateRenderer.prototype.render = function(root)
         else {
             goog.dom.appendChild(element, templateElement);
         }
+    }, this);
+
+    return new goog.Promise(function(resolve, reject){
+        goog.async.nextTick(resolve);
     }, this);
 };

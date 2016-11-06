@@ -133,11 +133,7 @@ dj.async.ImagePreloader.preloadSource = function(src)
 		var image = goog.dom.createDom('img');
 
 		goog.events.listen(image, goog.events.EventType.ERROR, reject);
-		goog.events.listen(image, goog.events.EventType.LOAD, function(){
-
-
-			resolve();
-		}, false, this);
+		goog.events.listen(image, goog.events.EventType.LOAD, resolve);
 
 		image['src'] = src;
 	});

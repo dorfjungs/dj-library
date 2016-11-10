@@ -17,7 +17,7 @@ dj.soy.TemplateRenderer = function()
 
     /**
      * @private
-     * @type {goog.structs.Map<string, Function}
+     * @type {goog.structs.Map<string, Function>}
      */
     this.templates_ = new goog.structs.Map();
 
@@ -54,7 +54,7 @@ dj.soy.TemplateRenderer.Strategy = {
 
 /**
  * @param {string} id
- * @param {function(ARG_TYPES, null=, Object<string, *>=):*} template
+ * @param {Function} template
  */
 dj.soy.TemplateRenderer.prototype.addTemplate = function(id, template)
 {

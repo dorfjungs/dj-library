@@ -62,7 +62,7 @@ dj.providers.ScrollProvider.prototype.processListeners_ = function()
 };
 
 /**
- * @return {goog.math.Size}
+ * @return {goog.math.Coordinate}
  */
 dj.providers.ScrollProvider.prototype.getScrollPosition = function()
 {

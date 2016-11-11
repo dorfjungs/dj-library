@@ -18,14 +18,32 @@ dj.providers.ScrollProvider = function()
 	 */
 	this.scrollPosition_ = new goog.math.Coordinate();
 
+    /**
+	 * @private
+	 * @type {goog.math.Coordinate}
+	 */
+    this.lastScrollPosiiton_ = new goog.math.Coordinate();
+
 	/**
 	 * @private
 	 * @type {Array<Function>}
 	 */
 	this.callacks_ = [];
 
+    /**
+     * @private
+     * @type {boolean}
+     */
+    this.scrollingDisabled_ = false;
+
+    /**
+     * @private
+     * @type {Element|Window}
+     */
+    this.scrollTarget_ = goog.dom.getWindow();
+
 	// Set reisze listener
-	goog.events.listen(goog.dom.getWindow(), goog.events.EventType.SCROLL,
+	goog.events.listen(this.scrollTarget_, goog.events.EventType.SCROLL,
 		this.handleScroll_, false, this);
 
 	// Initial resize on tick
@@ -83,4 +101,34 @@ dj.providers.ScrollProvider.prototype.onScroll = function(callback, optContext)
 	}
 
 	this.callacks_.push(callback);
+};
+
+/**
+ * @param {goog.math.Coordinate} position
+ */
+dj.providers.ScrollProvider.prototype.scrollTo = function(position)
+{
+    if (this.scrollTarget_.hasOwnProperty('scrollTo')) {
+        this.scrollTarget_['scrollTo'](position.x, position.y);
+    }
+};
+
+/**
+ * @param {boolean} disabled
+ */
+dj.providers.ScrollProvider.prototype.disableScrolling = function(disabled)
+{
+    var html = goog.dom.getElementsByTagNameAndClass('html')[0];
+
+    this.scrollingDisabled_ = disabled;
+
+    if (disabled) {
+        this.scrollTo(this.scrollPosition_);
+        this.lastScrollPosiiton_ = this.scrollPosition_.clone();
+        goog.style.setStyle(html, 'overflow', 'hidden');
+    }
+    else {
+        this.scrollTo(this.lastScrollPosiiton_);
+        goog.style.setStyle(html, 'overflow', '');
+    }
 };

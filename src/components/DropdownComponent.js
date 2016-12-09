@@ -349,6 +349,30 @@ dj.components.DropdownComponent.prototype.createOptionElement_ = function(name, 
 };
 
 /**
+ * @param {string} content
+ */
+dj.components.DropdownComponent.prototype.enableByContent = function(content)
+{
+    this.options_.forEach(function(option){
+        if (option.content == content) {
+            this.activateOption_(option);
+        }
+    }, this);
+};
+
+/**
+ * @param {string} name
+ */
+dj.components.DropdownComponent.prototype.enableByName = function(name)
+{
+    this.options_.forEach(function(option){
+        if (option.name == name) {
+            this.activateOption_(option);
+        }
+    }, this);
+};
+
+/**
  * @return {dj.models.DropdownModel}
  */
 dj.components.DropdownComponent.prototype.getSelected = function()

@@ -88,7 +88,6 @@ dj.components.AccordionComponent.prototype.handleHeaderClick_ = function(event)
 
 /**
  * @param {dj.models.AccordionItemModel} item
- * @return {boolean}
  */
 dj.components.AccordionComponent.prototype.toggleItem_ = function(item)
 {

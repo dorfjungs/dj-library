@@ -10,7 +10,7 @@ goog.provide('dj.models.AccordionItemModel');
 dj.models.AccordionItemModel = function(id, parent, header, content)
 {
     /**
-     * @param {string}
+     * @type {string}
      */
     this.id = id;
 

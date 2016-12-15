@@ -103,7 +103,7 @@ dj.components.DropdownComponent.prototype.init = function()
 		this.label_ = /** @type {string} */ (goog.dom.dataset.get(this.getElement(), 'label'));
 		this.activeElement_ = this.getElementByClass('active');
 		this.optionWrapper_ = this.getElementByClass('option-wrapper');
-        this.triggers_ = this.getElementsByClass('trigger');
+        this.triggers_ = /** @type {Array<Element>} */ (this.getElementsByClass('trigger'));
 
         var provideSelect = goog.dom.dataset.get(this.getElement(), 'provideSelect');
         var optionClasses = goog.dom.dataset.get(this.getElement(), 'optionClass');

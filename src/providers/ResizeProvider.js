@@ -55,6 +55,14 @@ dj.providers.ResizeProvider.prototype.handleResize_ = function()
 };
 
 /**
+ *
+ */
+dj.providers.ResizeProvider.prototype.triggerResize = function()
+{
+	this.handleResize_();
+};
+
+/**
  * @private
  */
 dj.providers.ResizeProvider.prototype.processListeners_ = function()

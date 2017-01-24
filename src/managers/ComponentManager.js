@@ -7,15 +7,19 @@ goog.require('goog.Promise');
 goog.require('goog.structs.Map');
 goog.require('goog.events.Event');
 goog.require('goog.async.nextTick');
+goog.require('goog.events.EventTarget');
 
 // dj
 goog.require('dj.components.BaseComponent');
 
 /**
  * @constructor
+ * @extends {goog.events.EventTarget}
  */
 dj.managers.ComponentManager = function()
 {
+	goog.base(this);
+
 	/**
 	 * @private
 	 * @type {Element|Document}
@@ -47,11 +51,17 @@ dj.managers.ComponentManager = function()
 	this.initialized_ = false;
 };
 
+goog.inherits(
+	dj.managers.ComponentManager,
+	goog.events.EventTarget
+);
+
 /**
  * @enum {string}
  */
 dj.managers.ComponentManager.EventType = {
-	COMPONENT_INITIALIZED: 'dj.managers.ComponentManager.EventType.COMPONENT_INITIALIZED'
+	COMPONENT_INITIALIZED: 'dj.managers.ComponentManager.EventType.COMPONENT_INITIALIZED',
+	MANAGER_UPDATE: 'dj.managers.ComponentManager.EventType.MANAGER_UPDATE'
 };
 
 /**
@@ -91,6 +101,10 @@ dj.managers.ComponentManager.prototype.update = function()
 			this.parent_.querySelectorAll('[' + this.identifier_ +  ']:not([' + this.identifierId_ + '])')
 		)
 	);
+
+	goog.async.nextTick(function(){
+		this.dispatchEvent(dj.managers.ComponentManager.EventType.MANAGER_UPDATE);
+	}, this);
 };
 
 /**

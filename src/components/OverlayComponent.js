@@ -333,14 +333,38 @@ dj.components.OverlayComponent.prototype.getModelByTrigger = function(trigger)
 
 /**
  * @private
- * @param  {string} url
+ * @param {string} url
+ * @param {goog.Uri.QueryData=} optParameters
  * @return {dj.models.OverlayModel}
  */
-dj.components.OverlayComponent.prototype.getModelByUrl_ = function(url)
+dj.components.OverlayComponent.prototype.getModelByUrl_ = function(url, optParameters)
 {
     for (var i = 0, len = this.overlays_.length; i < len; i++) {
         if (this.overlays_[i].getUrl() == url) {
-            return this.overlays_[i];
+            var valid = true;
+
+            if (optParameters) {
+                // Check if paremeters matches
+                var modelParemters = this.overlays_[i].getParameters();
+                var modelKeys = modelParemters.getKeys();
+
+                for (var ii = 0, lenX = modelKeys.length; ii < lenX; ii++)  {
+                    if (optParameters.containsKey(modelKeys[ii])) {
+                        valid = optParameters.get(modelKeys[ii]) == modelParemters.get(modelKeys[ii]);
+                    }
+                    else {
+                        valid = false;
+                    }
+
+                    if (!valid) {
+                        break;
+                    }
+                }
+            }
+
+            if (valid) {
+                return this.overlays_[i];
+            }
         }
     }
 
@@ -582,7 +606,9 @@ dj.components.OverlayComponent.prototype.openWithModel_ = function(model, optCon
 dj.components.OverlayComponent.prototype.handleLayerXhrSuccess_ = function(event)
 {
     var content = event.target.getResponseText();
-    var model = this.getModelByUrl_(event.target.getLastUri().split('?')[0]);
+    var uri = new goog.Uri(event.target.getLastUri());
+    var query = uri.getQueryData();
+    var model = this.getModelByUrl_(uri.getPath(), query.getCount() > 0 ? query : null);
 
     /**
      * Save content for further

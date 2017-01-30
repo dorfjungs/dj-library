@@ -302,7 +302,8 @@ dj.components.OverlayComponent.prototype.createModel_ = function(trigger)
         trigger.getAttribute('href'),
         /** @type {string|undefined} */ (goog.dom.dataset.get(trigger, 'pushstate')),
         /** @type {string|undefined} */ (goog.dom.dataset.get(trigger, 'jumpback')),
-        parameters
+        parameters,
+        /** @type {string|undefined} */ (goog.dom.dataset.get(trigger, 'preventNoScroll'))
     );
 };
 
@@ -387,7 +388,7 @@ dj.components.OverlayComponent.prototype.close = function()
 {
     if (this.lastModel_) {
         this.resetHistoryState_();
-        this.enableLayer_(false);
+        this.enableLayer_(false, this.lastModel_.getPreventNoScroll());
 
         /**
          * Scroll back to the position
@@ -426,11 +427,15 @@ dj.components.OverlayComponent.prototype.scrollToModel_ = function(model)
 /**
  * @private
  * @param {boolean} isActive
+ * @param {boolean=} optPreventNoScroll
  */
-dj.components.OverlayComponent.prototype.enableLayer_ = function(isActive)
+dj.components.OverlayComponent.prototype.enableLayer_ = function(isActive, optPreventNoScroll)
 {
     goog.dom.classlist.enable(this.layer_, this.activeClass_, isActive);
-    goog.dom.classlist.enable(goog.dom.getDocument()['documentElement'], this.noScrollClass_, isActive);
+
+    if (!goog.isDefAndNotNull(optPreventNoScroll) && ! optPreventNoScroll) {
+        goog.dom.classlist.enable(goog.dom.getDocument()['documentElement'], this.noScrollClass_, isActive);
+    }
 };
 
 /**
@@ -546,7 +551,7 @@ dj.components.OverlayComponent.prototype.openWithModel_ = function(model, optCon
      * Set active classes
      */
 
-    this.enableLayer_(true);
+    this.enableLayer_(true, model.getPreventNoScroll());
 
     /**
      * Set push state url

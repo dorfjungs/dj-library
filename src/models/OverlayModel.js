@@ -7,9 +7,10 @@ goog.provide('dj.models.OverlayModel');
  * @param {string=} optPushStateUrl
  * @param {string=} optAllowPushState
  * @param {string=} optAllowJumpback
+ * @param {string=} optPreventNoScroll
  * @param {goog.structs.Map<string, string>=} optParameters
  */
-dj.models.OverlayModel = function(trigger, url, optPushStateUrl, optAllowPushState, optAllowJumpback, optParameters)
+dj.models.OverlayModel = function(trigger, url, optPushStateUrl, optAllowPushState, optAllowJumpback, optParameters, optPreventNoScroll)
 {
     /**
      * The trigger element
@@ -59,6 +60,12 @@ dj.models.OverlayModel = function(trigger, url, optPushStateUrl, optAllowPushSta
      * @type {boolean}
      */
     this.allowJumpback_ = optAllowJumpback && optAllowJumpback == 'false' ? false : true;
+
+    /**
+     * @private
+     * @type {boolean}
+     */
+    this.preventNoScroll_ = optPreventNoScroll && optPreventNoScroll == 'true' ? true : false;
 
     /**
      * @private
@@ -162,4 +169,12 @@ dj.models.OverlayModel.prototype.getAllowPushState = function()
 dj.models.OverlayModel.prototype.getAllowJumpback = function()
 {
     return this.allowJumpback_;
+};
+
+/**
+ * @return {boolean}
+ */
+dj.models.OverlayModel.prototype.getPreventNoScroll = function()
+{
+    return this.preventNoScroll_;
 };

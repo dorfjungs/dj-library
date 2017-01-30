@@ -46,11 +46,7 @@ goog.addSingletonGetter(
  */
 dj.providers.ResizeProvider.prototype.handleResize_ = function()
 {
-	var win = goog.dom.getWindow();
-
-	this.windowSize_.width = win.innerWidth;
-	this.windowSize_.height = win.innerHeight;
-
+	this.windowSize_ = goog.dom.getViewportSize(goog.dom.getWindow());
 	this.processListeners_();
 };
 

@@ -27,7 +27,7 @@ dj.sys.components.AbstractComponent = function()
 
 	/**
 	 * @protected
-	 * @type {dj.sys.ComponentManager}
+	 * @type {dj.sys.managers.ComponentManager}
 	 */
 	this.manager = null;
 
@@ -56,7 +56,7 @@ goog.inherits(
 );
 
 /**
- * @public
+ * @export
  * @return {goog.Promise}
  */
 dj.sys.components.AbstractComponent.prototype.ready = function()
@@ -65,7 +65,7 @@ dj.sys.components.AbstractComponent.prototype.ready = function()
 };
 
 /**
- * @public
+ * @export
  * @return {goog.Promise}
  */
 dj.sys.components.AbstractComponent.prototype.init = function()
@@ -75,7 +75,6 @@ dj.sys.components.AbstractComponent.prototype.init = function()
 
 /**
  * @protected
- * @return {boolean}
  */
 dj.sys.components.AbstractComponent.prototype.initResizeProvider = function()
 {
@@ -90,7 +89,6 @@ dj.sys.components.AbstractComponent.prototype.initResizeProvider = function()
 
 /**
  * @protected
- * @return {boolean}
  */
 dj.sys.components.AbstractComponent.prototype.initScrollProvider = function()
 {
@@ -171,7 +169,7 @@ dj.sys.components.AbstractComponent.prototype.getWindowSize = function()
 
 /**
  * @protected
- * @return {goog.math.Size}
+ * @return {goog.math.Coordinate}
  */
 dj.sys.components.AbstractComponent.prototype.getScrollPosition = function()
 {
@@ -215,7 +213,7 @@ dj.sys.components.AbstractComponent.prototype.initComponent = function(component
 
 /**
  * @protected
- * @param {Array<dj.sys.components.AbstractComponent>} component
+ * @param {Array<dj.sys.components.AbstractComponent>} components
  * @return {goog.Promise}
  */
 dj.sys.components.AbstractComponent.prototype.initComponents = function(components)
@@ -283,7 +281,7 @@ dj.sys.components.AbstractComponent.prototype.setModel = function(model)
 
 /**
  * @public
- * @param {dj.sys.ComponentManager} manager
+ * @param {dj.sys.managers.ComponentManager} manager
  */
 dj.sys.components.AbstractComponent.prototype.setManager = function(manager)
 {

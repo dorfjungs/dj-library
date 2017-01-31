@@ -1,4 +1,4 @@
-goog.provide('dj.sys.ComponentManager');
+goog.provide('dj.sys.managers.ComponentManager');
 
 // goog
 goog.require('goog.dom');
@@ -14,11 +14,11 @@ goog.require('dj.sys.models.ComponentConfigModel');
 
 /**
  * @constructor
- * @param {goog.events.EventTarget}
+ * @extends {goog.events.EventTarget}
  */
-dj.sys.ComponentManager = function()
+dj.sys.managers.ComponentManager = function()
 {
-	dj.sys.ComponentManager.base(this, 'constructor');
+	dj.sys.managers.ComponentManager.base(this, 'constructor');
 
 	/**
 	 * @private
@@ -65,8 +65,9 @@ dj.sys.ComponentManager = function()
 	/**
 	 * @private
 	 * @type {goog.structs.Map<string, {
-	 *    ctor: Function,
-	 *    config: Object
+	 *    name: string,
+	 *    class: Function,
+	 *    config: Array<dj.sys.models.ComponentConfigModel>
 	 * }>}
 	 */
 	this.componentConfig_ = new goog.structs.Map();
@@ -75,24 +76,24 @@ dj.sys.ComponentManager = function()
 	 * @private
 	 * @type {number}
 	 */
-	this.iniitalizationOrder_ = dj.sys.ComponentManager.InitializationOrder.BOTTOM_TO_TOP;
+	this.iniitalizationOrder_ = dj.sys.managers.ComponentManager.InitializationOrder.BOTTOM_TO_TOP;
 
 	/**
 	 * @private
 	 * @type {number}
 	 */
-	this.iniitalizationMethod_ = dj.sys.ComponentManager.InitializationMethod.ASYNCHRONOUS;
+	this.iniitalizationMethod_ = dj.sys.managers.ComponentManager.InitializationMethod.ASYNCHRONOUS;
 };
 
 goog.inherits(
-	dj.sys.ComponentManager,
+	dj.sys.managers.ComponentManager,
 	goog.events.EventTarget
 );
 
 /**
  * @enum {number}
  */
-dj.sys.ComponentManager.InitializationOrder = {
+dj.sys.managers.ComponentManager.InitializationOrder = {
 	BOTTOM_TO_TOP: 1,
 	TOP_TO_BOTTOM: 2
 };
@@ -100,7 +101,7 @@ dj.sys.ComponentManager.InitializationOrder = {
 /**
  * @enum {number}
  */
-dj.sys.ComponentManager.InitializationMethod = {
+dj.sys.managers.ComponentManager.InitializationMethod = {
 	ASYNCHRONOUS: 1,
 	SEQUENTIAL: 2
 };
@@ -108,9 +109,9 @@ dj.sys.ComponentManager.InitializationMethod = {
 /**
  * @param {string} name
  * @param {Function} ctor
- * @param {Array<dj.sys.models.ComponentConfigModel>} optConfig
+ * @param {Array<dj.sys.models.ComponentConfigModel>=} optConfig
  */
-dj.sys.ComponentManager.prototype.add = function(name, ctor, optConfig)
+dj.sys.managers.ComponentManager.prototype.add = function(name, ctor, optConfig)
 {
 	this.componentConfig_.set(name, {
 		name: name,
@@ -123,7 +124,7 @@ dj.sys.ComponentManager.prototype.add = function(name, ctor, optConfig)
  * @public
  * @return {goog.Promise}
  */
-dj.sys.ComponentManager.prototype.init = function()
+dj.sys.managers.ComponentManager.prototype.init = function()
 {
 	return this.update();
 };
@@ -132,7 +133,7 @@ dj.sys.ComponentManager.prototype.init = function()
  * @public
  * @return {goog.Promise}
  */
-dj.sys.ComponentManager.prototype.update = function()
+dj.sys.managers.ComponentManager.prototype.update = function()
 {
 	var rootElement = this.getRootElement();
 	var componentModels = [];
@@ -176,7 +177,7 @@ dj.sys.ComponentManager.prototype.update = function()
 /**
  * @return {goog.Promise}
  */
-dj.sys.ComponentManager.prototype.initComponent = function(component)
+dj.sys.managers.ComponentManager.prototype.initComponent = function(component)
 {
 	var resolver = goog.Promise.withResolver();
 
@@ -223,7 +224,7 @@ dj.sys.ComponentManager.prototype.initComponent = function(component)
  * @private
  * @return {goog.Promise}
  */
-dj.sys.ComponentManager.prototype.loadNextComponent_ = function()
+dj.sys.managers.ComponentManager.prototype.loadNextComponent_ = function()
 {
 	var component;
 
@@ -240,9 +241,9 @@ dj.sys.ComponentManager.prototype.loadNextComponent_ = function()
  * @param {number} method
  * @return {goog.Promise}
  */
-dj.sys.ComponentManager.prototype.loadComponentStack_ = function(method)
+dj.sys.managers.ComponentManager.prototype.loadComponentStack_ = function(method)
 {
-	if (method == dj.sys.ComponentManager.InitializationMethod.ASYNCHRONOUS) {
+	if (method == dj.sys.managers.ComponentManager.InitializationMethod.ASYNCHRONOUS) {
 		var component = null;
 		var promises = [];
 
@@ -252,7 +253,7 @@ dj.sys.ComponentManager.prototype.loadComponentStack_ = function(method)
 
 		return goog.Promise.all(promises);
 	}
-	else if (method == dj.sys.ComponentManager.InitializationMethod.SEQUENTIAL) {
+	else if (method == dj.sys.managers.ComponentManager.InitializationMethod.SEQUENTIAL) {
 		return this.loadNextComponent_();
 
 	}
@@ -265,7 +266,7 @@ dj.sys.ComponentManager.prototype.loadComponentStack_ = function(method)
  * @param {dj.sys.models.ComponentModel} model
  * @return {dj.sys.components.AbstractComponent}
  */
-dj.sys.ComponentManager.prototype.instatiateComponentByModel_ = function(model)
+dj.sys.managers.ComponentManager.prototype.instatiateComponentByModel_ = function(model)
 {
 	var componentConfig = this.componentConfig_.get(model.name);
 	var componentObject = new componentConfig.class();
@@ -278,11 +279,11 @@ dj.sys.ComponentManager.prototype.instatiateComponentByModel_ = function(model)
 
 /**
  * @private
- * @param {Array<dj.sys.models.ComponentModel>}
+ * @param {Array<dj.sys.models.ComponentModel>} models
  * @param {number} order
- * @return {Array<dj.sys.components.AbstractComponent>}
+ * @return {Array<dj.sys.models.ComponentModel>}
  */
-dj.sys.ComponentManager.prototype.createStackByModels_ = function(models, order)
+dj.sys.managers.ComponentManager.prototype.createStackByModels_ = function(models, order)
 {
 	var depthOrder = [];
 	var depthBuckets = goog.array.bucket(models, function(model){
@@ -290,14 +291,14 @@ dj.sys.ComponentManager.prototype.createStackByModels_ = function(models, order)
 	});
 
 	for (var depth in depthBuckets) {
-		depthOrder[depth] = depthBuckets[depth];
+		depthOrder[parseInt(depth, 10)] = depthBuckets[depth];
 
-		if (order == dj.sys.ComponentManager.InitializationOrder.BOTTOM_TO_TOP) {
-			depthOrder[depth].reverse();
+		if (order == dj.sys.managers.ComponentManager.InitializationOrder.BOTTOM_TO_TOP) {
+			depthOrder[parseInt(depth, 10)].reverse();
 		}
 	}
 
-	if (order == dj.sys.ComponentManager.InitializationOrder.BOTTOM_TO_TOP) {
+	if (order == dj.sys.managers.ComponentManager.InitializationOrder.BOTTOM_TO_TOP) {
 		depthOrder.reverse();
 	}
 
@@ -308,7 +309,7 @@ dj.sys.ComponentManager.prototype.createStackByModels_ = function(models, order)
  * @private
  * @param {dj.sys.models.ComponentModel} model
  */
-dj.sys.ComponentManager.prototype.setParentModel_ = function(model)
+dj.sys.managers.ComponentManager.prototype.setParentModel_ = function(model)
 {
 	var parentElement = goog.dom.getParentElement(model.element);
 	var rootElement = this.getRootElement();
@@ -336,21 +337,21 @@ dj.sys.ComponentManager.prototype.setParentModel_ = function(model)
 
 /**
  * @private
- * @return {number}
+ * @return {string}
  */
-dj.sys.ComponentManager.prototype.getNextUid_ = function()
+dj.sys.managers.ComponentManager.prototype.getNextUid_ = function()
 {
-	return ++this.uidCounter_;
+	return (++this.uidCounter_).toString();
 };
 
 /**
  * @private
  * @param {Element} element
  * @param {string} name
- * @param {Object} config
+ * @param {Array<dj.sys.models.ComponentConfigModel>} config
  * @return {dj.sys.models.ComponentModel}
  */
-dj.sys.ComponentManager.prototype.parseComponentElement_ = function(name, element, ctor, config)
+dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(name, element, ctor, config)
 {
 	return new dj.sys.models.ComponentModel(this.getNextUid_(), name, element, ctor, config);
 };
@@ -359,16 +360,16 @@ dj.sys.ComponentManager.prototype.parseComponentElement_ = function(name, elemen
  * @public
  * @return {Element}
  */
-dj.sys.ComponentManager.prototype.getRootElement = function()
+dj.sys.managers.ComponentManager.prototype.getRootElement = function()
 {
-	return this.rootElement_ || /** @type {Element} */ (document);
+	return this.rootElement_ || /** @type {Element} */ (document.documentElement);
 };
 
 /**
  * @public
  * @param {Element} element
  */
-dj.sys.ComponentManager.prototype.setRootElement = function(element)
+dj.sys.managers.ComponentManager.prototype.setRootElement = function(element)
 {
 	this.rootElement_ = element;
 };
@@ -377,7 +378,7 @@ dj.sys.ComponentManager.prototype.setRootElement = function(element)
  * @public
  * @param {string} name
  */
-dj.sys.ComponentManager.prototype.setAttributeName = function(name)
+dj.sys.managers.ComponentManager.prototype.setAttributeName = function(name)
 {
 	this.attributeName_ = name;
 };
@@ -386,7 +387,7 @@ dj.sys.ComponentManager.prototype.setAttributeName = function(name)
  * @public
  * @return {string}
  */
-dj.sys.ComponentManager.prototype.getAttributeId = function()
+dj.sys.managers.ComponentManager.prototype.getAttributeId = function()
 {
 	return this.attributeId_;
 };
@@ -395,7 +396,7 @@ dj.sys.ComponentManager.prototype.getAttributeId = function()
  * @public
  * @param {string} id
  */
-dj.sys.ComponentManager.prototype.getComponent = function(id)
+dj.sys.managers.ComponentManager.prototype.getComponent = function(id)
 {
 	return this.components_.get(id);
 };

@@ -99,7 +99,7 @@ goog.inherits(
  */
 dj.ext.components.DropdownComponent.prototype.ready = function()
 {
-	return this.baseReady(function(dj.ext.components.DropdownComponent, resolve, reject){
+	return this.baseReady(dj.ext.components.DropdownComponent, function(resolve, reject){
 		var options = goog.json.parse(goog.dom.dataset.get(this.getElement(), 'options'));
 
 		this.label_ = /** @type {string} */ (goog.dom.dataset.get(this.getElement(), 'label'));
@@ -134,7 +134,7 @@ dj.ext.components.DropdownComponent.prototype.ready = function()
 
             resolve();
         }, this);
-	}, this);
+	});
 };
 
 /**

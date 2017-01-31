@@ -76,7 +76,7 @@ dj.sys.models.ComponentModel = function(id, name, element, ctor, optStaticConfig
 
 	/**
 	 * @public
-	 * @type {goog.structs.Map<string, *>}
+	 * @type {Object}
 	 */
-	this.dynamicConfig = new goog.structs.Map();
+	this.dynamicConfig = {};
 };

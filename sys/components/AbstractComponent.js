@@ -7,6 +7,7 @@ goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventTarget');
 
 // dj
+goog.require('dj.ext.object');
 goog.require('dj.ext.providers.ResizeProvider');
 goog.require('dj.ext.providers.ScrollProvider');
 
@@ -313,6 +314,26 @@ dj.sys.components.AbstractComponent.prototype.setInitialized = function(initaliz
 dj.sys.components.AbstractComponent.prototype.setPendingPromise = function(promise)
 {
 	this.model.pendingPromise = promise;
+};
+
+/**
+ * @public
+ * @param {string} path
+ * @return {*}
+ */
+dj.sys.components.AbstractComponent.prototype.getConfig = function(path)
+{
+	return dj.ext.object.getByValueByPath(this.model.dynamicConfig, path);
+};
+
+/**
+ * @public
+ * @param {string} path
+ * @return {boolean}
+ */
+dj.sys.components.AbstractComponent.prototype.hasConfig = function(path)
+{
+	return goog.isDefAndNotNull(this.getConfig(path));
 };
 
 /**

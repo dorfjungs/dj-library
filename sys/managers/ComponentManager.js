@@ -2,15 +2,19 @@ goog.provide('dj.sys.managers.ComponentManager');
 
 // goog
 goog.require('goog.dom');
+goog.require('goog.json');
 goog.require('goog.dom.dataset');
 goog.require('goog.structs.Map');
 goog.require('goog.asserts');
 goog.require('goog.dom.classlist');
+goog.require('goog.crypt.base64');
 goog.require('goog.events.EventTarget');
 
 // dj
 goog.require('dj.sys.models.ComponentModel');
 goog.require('dj.sys.models.ComponentConfigModel');
+goog.require('dj.sys.parsers.ElementConfigParser');
+goog.require('dj.sys.parsers.ElementsConfigParser');
 
 /**
  * @constructor
@@ -37,6 +41,12 @@ dj.sys.managers.ComponentManager = function()
 	 * @type {string}
 	 */
 	this.attributeId_ = 'data-cmp-id';
+
+	/**
+	 * @private
+	 * @type {string}
+	 */
+	this.attributeConfig_ = 'data-cmp-config';
 
 	/**
 	 * @private
@@ -71,6 +81,15 @@ dj.sys.managers.ComponentManager = function()
 	 * }>}
 	 */
 	this.componentConfig_ = new goog.structs.Map();
+
+	/**
+	 * @private
+	 * @type {Array<dj.sys.parsers.AbstractConfigParser>}
+	 */
+	this.configParsers_ = [
+		new dj.sys.parsers.ElementConfigParser(),
+		new dj.sys.parsers.ElementsConfigParser()
+	];
 
 	/**
 	 * @private
@@ -346,6 +365,16 @@ dj.sys.managers.ComponentManager.prototype.getNextUid_ = function()
 
 /**
  * @private
+ * @param {string} str
+ * @return {boolean}
+ */
+dj.sys.managers.ComponentManager.prototype.isBase64_ = function(str)
+{
+	return (/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$/).test(str);
+};
+
+/**
+ * @private
  * @param {Element} element
  * @param {string} name
  * @param {Array<dj.sys.models.ComponentConfigModel>} config
@@ -353,7 +382,47 @@ dj.sys.managers.ComponentManager.prototype.getNextUid_ = function()
  */
 dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(name, element, ctor, config)
 {
-	return new dj.sys.models.ComponentModel(this.getNextUid_(), name, element, ctor, config);
+	var componentModel = new dj.sys.models.ComponentModel(this.getNextUid_(), name, element, ctor, config);
+	var dynamicConfig = element.getAttribute(this.attributeConfig_);
+
+	if (dynamicConfig) {
+		if (this.isBase64_(dynamicConfig)) {
+			dynamicConfig = goog.crypt.base64.decodeString(dynamicConfig);
+		}
+
+		goog.asserts.assert(goog.json.isValid(dynamicConfig),
+			'Invalid config for ' + name + ' component');
+
+		dynamicConfig = goog.json.parse(dynamicConfig);
+
+		if (this.configParsers_.length > 0) {
+			dynamicConfig = this.parseComponentConfig_(dynamicConfig, componentModel);
+		}
+
+		componentModel.dynamicConfig = dynamicConfig;
+	}
+
+	return componentModel;
+};
+
+/**
+ * @param {Object} config
+ * @param {dj.sys.models.ComponentConfigModel} componentModel
+ * @return {Object}
+ */
+dj.sys.managers.ComponentManager.prototype.parseComponentConfig_ = function(config, componentModel)
+{
+	for (var x in config) {
+		if (goog.isString(config[x])) {
+			for (var i = 0, len = this.configParsers_.length; i < len; i++) {
+				if (this.configParsers_[i].test(config[x])) {
+					config[x] = this.configParsers_[i].parse(config[x], componentModel);
+				}
+			}
+		}
+	}
+
+	return config;
 };
 
 /**

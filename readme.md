@@ -1,6 +1,8 @@
 # dj library
 A javascriot library which builds it's components on the latest version of the underrated closure library.
 
+## Intro
+
 ### What you need to use it
 You just need to get the latest version of the closure library: https://github.com/google/closure-library
 
@@ -12,6 +14,8 @@ You just need to get the latest version of the closure library: https://github.c
 **SYS:** It provides the component manager of the library.
 
 **EXT:** All components and utilities already created. E.g. OverlyComponent, DropdownComponent, ...
+
+## Component
 
 ### Creating a component
 
@@ -104,6 +108,8 @@ or
 var windowSize = this.getWindowSize();
 ```
 
+## Component manager
+
 ### Using the component manager
 
 To set up the component manager simply do it like this:
@@ -161,3 +167,6 @@ The ***default*** attribute name is ***data-cmp***.
 ```javascript
 componentManager.setAttributeName('data-attr-name');
 ```
+
+## License
+The dj library is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).

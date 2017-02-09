@@ -12,7 +12,6 @@ goog.require('goog.events.EventTarget');
 
 // dj
 goog.require('dj.sys.models.ComponentModel');
-goog.require('dj.sys.models.ComponentConfigModel');
 goog.require('dj.sys.parsers.ElementConfigParser');
 goog.require('dj.sys.parsers.ElementsConfigParser');
 
@@ -77,19 +76,10 @@ dj.sys.managers.ComponentManager = function()
 	 * @type {goog.structs.Map<string, {
 	 *    name: string,
 	 *    class: Function,
-	 *    config: Array<dj.sys.models.ComponentConfigModel>
+	 *    config: Array<dj.sys.models.config.AbstractConfigModel>
 	 * }>}
 	 */
 	this.componentConfig_ = new goog.structs.Map();
-
-	/**
-	 * @private
-	 * @type {Array<dj.sys.parsers.AbstractConfigParser>}
-	 */
-	this.configParsers_ = [
-		new dj.sys.parsers.ElementConfigParser(),
-		new dj.sys.parsers.ElementsConfigParser()
-	];
 
 	/**
 	 * @private
@@ -393,30 +383,48 @@ dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(nam
 		goog.asserts.assert(goog.json.isValid(dynamicConfig),
 			'Invalid config for ' + name + ' component');
 
-		dynamicConfig = goog.json.parse(dynamicConfig);
-
-		if (this.configParsers_.length > 0) {
-			dynamicConfig = this.parseComponentConfig_(dynamicConfig, componentModel);
-		}
-
-		componentModel.dynamicConfig = dynamicConfig;
+		componentModel.dynamicConfig = goog.json.parse(dynamicConfig);
 	}
+
+	this.parseStaticConfig_(componentModel, config);
 
 	return componentModel;
 };
 
 /**
+ * @private
+ * @param {dj.sys.models.ComponentModel} model
+ * @param {Array<dj.sys.models.config.AbstractConfigModel>} staticConfig
+ */
+dj.sys.managers.ComponentManager.prototype.parseStaticConfig_ = function(model, staticConfig)
+{
+	for (var i = 0, len = staticConfig.length; i < len; i++) {
+		var config = staticConfig[i];
+
+		if (config instanceof dj.sys.models.config.ConfigParserModel) {
+			config = /** @type {dj.sys.models.config.ConfigParserModel} */ (config);
+
+			if ( ! goog.object.isEmpty(model.dynamicConfig)) {
+				model.dynamicConfig = this.parseComponentConfigParsers_(
+					model.dynamicConfig, model, config.parsers);
+			}
+		}
+	}
+};
+
+/**
  * @param {Object} config
- * @param {dj.sys.models.ComponentConfigModel} componentModel
+ * @param {dj.sys.models.ComponentModel} model
+ * @param {Array<dj.sys.parsers.AbstractConfigParser>} parsers
  * @return {Object}
  */
-dj.sys.managers.ComponentManager.prototype.parseComponentConfig_ = function(config, componentModel)
+dj.sys.managers.ComponentManager.prototype.parseComponentConfigParsers_ = function(config, model, parsers)
 {
 	for (var x in config) {
 		if (goog.isString(config[x])) {
-			for (var i = 0, len = this.configParsers_.length; i < len; i++) {
-				if (this.configParsers_[i].test(config[x])) {
-					config[x] = this.configParsers_[i].parse(config[x], componentModel);
+			for (var i = 0, len = parsers.length; i < len; i++) {
+				if (parsers[i].test(config[x])) {
+					config[x] = parsers[i].parse(config[x], model);
 				}
 			}
 		}

@@ -6,6 +6,7 @@ goog.require('goog.json');
 goog.require('goog.dom.dataset');
 goog.require('goog.structs.Map');
 goog.require('goog.asserts');
+goog.require('goog.Promise');
 goog.require('goog.dom.classlist');
 goog.require('goog.crypt.base64');
 goog.require('goog.events.EventTarget');
@@ -14,6 +15,8 @@ goog.require('goog.events.EventTarget');
 goog.require('dj.sys.models.ComponentModel');
 goog.require('dj.sys.parsers.ElementConfigParser');
 goog.require('dj.sys.parsers.ElementsConfigParser');
+goog.require('dj.sys.models.config.ConfigParserModel');
+goog.require('dj.sys.components.AbstractComponent');
 
 /**
  * @constructor

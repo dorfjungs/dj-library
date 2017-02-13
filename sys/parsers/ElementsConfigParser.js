@@ -1,5 +1,8 @@
 goog.provide('dj.sys.parsers.ElementsConfigParser');
 
+// goog
+goog.require('goog.array');
+
 // dj
 goog.require('dj.sys.parsers.AbstractConfigParser');
 
@@ -29,7 +32,9 @@ dj.sys.parsers.ElementsConfigParser.prototype.parse = function(value, componentM
 		target = document.documentElement;
 	}
 
-	var elements = /** @type {Array<Element>} */ (target.querySelectorAll(this.getValue(value)));
+	var elements = /** @type {Array<Element>} */ (
+		goog.array.slice(target.querySelectorAll(this.getValue(value)), 0)
+	);
 
 	return elements.length > 0 ? elements : null;
 };

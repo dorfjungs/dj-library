@@ -118,7 +118,7 @@ dj.sys.managers.ComponentManager.InitializationMethod = {
 /**
  * @param {string} name
  * @param {Function} ctor
- * @param {Array<dj.sys.models.ComponentConfigModel>=} optConfig
+ * @param {Array<dj.sys.models.config.AbstractConfigModel>=} optConfig
  */
 dj.sys.managers.ComponentManager.prototype.add = function(name, ctor, optConfig)
 {
@@ -367,7 +367,7 @@ dj.sys.managers.ComponentManager.prototype.isBase64_ = function(str)
  * @private
  * @param {Element} element
  * @param {string} name
- * @param {Array<dj.sys.models.ComponentConfigModel>} config
+ * @param {Array<dj.sys.models.config.AbstractConfigModel>} config
  * @return {dj.sys.models.ComponentModel}
  */
 dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(name, element, ctor, config)

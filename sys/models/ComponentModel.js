@@ -10,7 +10,7 @@ goog.require('goog.structs.Map');
  * @param {string} name
  * @param {Element} element
  * @param {Function} ctor
- * @param {Array<dj.sys.models.ComponentConfigModel>=} optStaticConfig
+ * @param {Array<dj.sys.models.config.AbstractConfigModel>=} optStaticConfig
  */
 dj.sys.models.ComponentModel = function(id, name, element, ctor, optStaticConfig)
 {
@@ -70,7 +70,7 @@ dj.sys.models.ComponentModel = function(id, name, element, ctor, optStaticConfig
 
 	/**
 	 * @public
-	 * @type {Array<dj.sys.models.ComponentConfigModel>}
+	 * @type {Array<dj.sys.models.config.AbstractConfigModel>}
 	 */
 	this.staticConfg = optStaticConfig || [];
 

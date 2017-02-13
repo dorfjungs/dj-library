@@ -6,7 +6,7 @@ goog.require('goog.string');
 /**
  * @abstract
  * @constructor
- * @param {name} string
+ * @param {string} name
  */
 dj.sys.parsers.AbstractConfigParser = function(name)
 {
@@ -36,7 +36,7 @@ dj.sys.parsers.AbstractConfigParser.prototype.test = function(value)
  * @public
  * @return {*}
  * @param {string} value
- * @param {dj.sys.models.ComponentConfigModel} componentModel
+ * @param {dj.sys.models.ComponentModel} componentModel
  */
 dj.sys.parsers.AbstractConfigParser.prototype.parse = function(value, componentModel)
 {
@@ -59,7 +59,7 @@ dj.sys.parsers.AbstractConfigParser.prototype.getValue = function(value)
 /**
  * @protected
  * @param {string} value
- * @return {Arra<string>}
+ * @return {Array<string>}
  */
 dj.sys.parsers.AbstractConfigParser.prototype.getParams = function(value)
 {

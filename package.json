@@ -1,0 +1,22 @@
+{
+	"name": "dj-library",
+	"version": "1.0.11",
+	"description": "An extension library for the underrated google closure library",
+	"keywords": ["google", "closure", "components", "dorfjungs", "javascript"],
+	"homepage": "https://github.com/Dorfjungs/dj-library",
+	"repository": "https://github.com/Dorfjungs/dj-library",
+	"contributors": [
+		{
+			"name": "Davide Perozzi",
+			"email": "davide@dorfjungs.com",
+			"url": "http://dorfjungs.com/"
+		}
+	],
+	"license": {
+		"type": "MIT",
+    	"url": "http://www.opensource.org/licenses/mit-license.php"
+	},
+	"dependencies": {
+		"google-closure-library": "20170124.x"
+	}
+}

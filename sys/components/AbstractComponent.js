@@ -318,12 +318,20 @@ dj.sys.components.AbstractComponent.prototype.setPendingPromise = function(promi
 
 /**
  * @public
- * @param {string} path
+ * @param {string|function} property
  * @return {*}
  */
-dj.sys.components.AbstractComponent.prototype.getConfig = function(path)
+dj.sys.components.AbstractComponent.prototype.getConfig = function(property)
 {
-	return dj.ext.object.getByValueByPath(this.model.dynamicConfig, path);
+	if (typeof property == 'function') {
+		for (var i = 0, len = this.model.staticConfig.length; i < len; i++) {
+			if (this.model.staticConfig[i] instanceof property) {
+				return this.model.staticConfig[i];
+			}
+		}
+	}
+
+	return dj.ext.object.getByValueByPath(this.model.dynamicConfig, property);
 };
 
 /**

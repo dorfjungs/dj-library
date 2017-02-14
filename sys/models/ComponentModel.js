@@ -72,7 +72,7 @@ dj.sys.models.ComponentModel = function(id, name, element, ctor, optStaticConfig
 	 * @public
 	 * @type {Array<dj.sys.models.config.AbstractConfigModel>}
 	 */
-	this.staticConfg = optStaticConfig || [];
+	this.staticConfig = optStaticConfig || [];
 
 	/**
 	 * @public

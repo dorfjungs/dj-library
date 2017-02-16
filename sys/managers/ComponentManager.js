@@ -297,24 +297,32 @@ dj.sys.managers.ComponentManager.prototype.instatiateComponentByModel_ = functio
  */
 dj.sys.managers.ComponentManager.prototype.createStackByModels_ = function(models, order)
 {
-	var depthOrder = [];
+	var depthArray = [];
+	var depthOrder = new goog.structs.Map();
 	var depthBuckets = goog.array.bucket(models, function(model){
 		return model.depth;
 	});
 
 	for (var depth in depthBuckets) {
-		depthOrder[parseInt(depth, 10)] = depthBuckets[depth];
+		var index = parseInt(depth, 10);
+		var bucket = depthBuckets[depth];
 
 		if (order == dj.sys.managers.ComponentManager.InitializationOrder.BOTTOM_TO_TOP) {
-			depthOrder[parseInt(depth, 10)].reverse();
+			bucket.reverse();
 		}
+
+		depthOrder.set(index, bucket);
 	}
+
+	depthOrder.forEach(function(value, key){
+		depthArray.push(value);
+	});
 
 	if (order == dj.sys.managers.ComponentManager.InitializationOrder.BOTTOM_TO_TOP) {
-		depthOrder.reverse();
+		depthArray.reverse();
 	}
 
-	return goog.array.flatten(depthOrder);
+	return goog.array.flatten(depthArray);
 };
 
 /**

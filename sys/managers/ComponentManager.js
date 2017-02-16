@@ -150,6 +150,14 @@ dj.sys.managers.ComponentManager.prototype.update = function()
 	var rootElement = this.getRootElement();
 	var componentModels = [];
 
+	// Remove old components
+	this.components_.forEach(function(component, id){
+		if (!goog.dom.contains(rootElement, component.getElement())) {
+			component.dispose();
+			this.components_.remove(id);
+		}
+	}, this);
+
 	// Parse all elements to create the component models
 	this.componentConfig_.forEach(function(config, name){
 		var elements = rootElement.querySelectorAll('[' + this.attributeName_ + '="' + name + '"]:not([' + this.attributeId_ + '])');

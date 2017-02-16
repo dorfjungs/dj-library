@@ -75,6 +75,14 @@ dj.sys.components.AbstractComponent.prototype.init = function()
 };
 
 /**
+ * @public
+ */
+dj.sys.components.AbstractComponent.prototype.dispose = function()
+{
+	this.handler.removeAll();
+};
+
+/**
  * @protected
  */
 dj.sys.components.AbstractComponent.prototype.initResizeProvider = function()

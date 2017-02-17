@@ -190,7 +190,7 @@ dj.sys.components.AbstractComponent.prototype.getScrollPosition = function()
 
 /**
  * @protected
- * @param {string|function} selector
+ * @param {string|Function} selector
  * @param {Element=} optRoot
  * @return {dj.sys.components.AbstractComponent}
  */

@@ -224,7 +224,7 @@ dj.sys.components.AbstractComponent.prototype.queryComponent = function(selector
 
 /**
  * @protected
- * @param {string|function} selector
+ * @param {string|Function} selector
  * @param {Element=} optRoot
  * @return {Array<dj.sys.components.AbstractComponent>}
  */
@@ -378,7 +378,7 @@ dj.sys.components.AbstractComponent.prototype.setPendingPromise = function(promi
 
 /**
  * @public
- * @param {string|function} property
+ * @param {string|Function} property
  * @return {*}
  */
 dj.sys.components.AbstractComponent.prototype.getConfig = function(property)

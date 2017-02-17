@@ -190,7 +190,7 @@ dj.sys.components.AbstractComponent.prototype.getScrollPosition = function()
 
 /**
  * @protected
- * @param {string|Function} selector
+ * @param {string|Object} selector
  * @param {Element=} optRoot
  * @return {dj.sys.components.AbstractComponent}
  */
@@ -202,13 +202,13 @@ dj.sys.components.AbstractComponent.prototype.queryComponent = function(selector
 
 	if (typeof selector == 'function') {
 		this.manager.getComponents().forEach(function(component){
-			if (component instanceof selector && !foundComponent) {
+			if (component instanceof /** @type {!Object} */ (selector) && !foundComponent) {
 				foundComponent = component;
 			}
 		});
 	}
 	else {
-		var componentElement = /** @type {Element} */ (rootElement.querySelector(selector));
+		var componentElement = /** @type {Element} */ (rootElement.querySelector(/** @type {string} */ (selector)));
 
 		goog.asserts.assert(componentElement,
 			'Could not find component with query ' + selector);
@@ -224,7 +224,7 @@ dj.sys.components.AbstractComponent.prototype.queryComponent = function(selector
 
 /**
  * @protected
- * @param {string|Function} selector
+ * @param {string|Object} selector
  * @param {Element=} optRoot
  * @return {Array<dj.sys.components.AbstractComponent>}
  */
@@ -236,13 +236,13 @@ dj.sys.components.AbstractComponent.prototype.queryComponents = function(selecto
 
 	if (typeof selector == 'function') {
 		this.manager.getComponents().forEach(function(component){
-			if (component instanceof selector) {
+			if (component instanceof /** @type {!Object} */ (selector)) {
 				foundComponents.push(component);
 			}
 		});
 	}
 	else {
-		var componentElements = /** @type {Element} */ (rootElement.querySelectorAll(selector));
+		var componentElements = /** @type {Array<Element>} */ (goog.array.slice(rootElement.querySelectorAll(/** @type {string} */ (selector)), 0));
 
 		for (var i = 0, len = componentElements.length; i < len; i++) {
 			var componentElement = componentElements[i];
@@ -390,8 +390,11 @@ dj.sys.components.AbstractComponent.prototype.getConfig = function(property)
 			}
 		}
 	}
+	else if (typeof property == 'string') {
+		return dj.ext.object.getByValueByPath(this.model.dynamicConfig, property);
+	}
 
-	return dj.ext.object.getByValueByPath(this.model.dynamicConfig, property);
+	return null;
 };
 
 /**

@@ -491,8 +491,18 @@ dj.sys.managers.ComponentManager.prototype.getAttributeId = function()
 /**
  * @public
  * @param {string} id
+ * @return {dj.sys.components.AbstractComponent}
  */
 dj.sys.managers.ComponentManager.prototype.getComponent = function(id)
 {
 	return this.components_.get(id);
+};
+
+/**
+ * @public
+ * @return {goog.structs.Map<string, dj.sys.components.AbstractComponent>}
+ */
+dj.sys.managers.ComponentManager.prototype.getComponents = function()
+{
+	return this.components_;
 };

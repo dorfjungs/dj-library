@@ -190,7 +190,7 @@ dj.sys.components.AbstractComponent.prototype.getScrollPosition = function()
 
 /**
  * @protected
- * @param {string} selector
+ * @param {string|function} selector
  * @param {Element=} optRoot
  * @return {dj.sys.components.AbstractComponent}
  */
@@ -198,16 +198,68 @@ dj.sys.components.AbstractComponent.prototype.queryComponent = function(selector
 {
 	var rootElement = optRoot || this.model.element;
 	var idAttribute = this.manager.getAttributeId();
-	var componentElement = /** @type {Element} */ (rootElement.querySelector(selector));
+	var foundComponent;
 
-	goog.asserts.assert(componentElement,
-		'Could not find component with query ' + selector);
-	goog.asserts.assert(componentElement.hasAttribute(idAttribute),
-		'Queried element is not initialized ' + selector);
+	if (typeof selector == 'function') {
+		this.manager.getComponents().forEach(function(component){
+			if (component instanceof selector && !foundComponent) {
+				foundComponent = component;
+			}
+		});
+	}
+	else {
+		var componentElement = /** @type {Element} */ (rootElement.querySelector(selector));
 
-	var componentId = componentElement.getAttribute(idAttribute);
+		goog.asserts.assert(componentElement,
+			'Could not find component with query ' + selector);
+		goog.asserts.assert(componentElement.hasAttribute(idAttribute),
+			'Queried element is not initialized ' + selector);
 
-	return this.manager.getComponent(componentId);
+		var componentId = componentElement.getAttribute(idAttribute);
+		foundComponent = this.manager.getComponent(componentId);
+	}
+
+	return foundComponent;
+};
+
+/**
+ * @protected
+ * @param {string|function} selector
+ * @param {Element=} optRoot
+ * @return {Array<dj.sys.components.AbstractComponent>}
+ */
+dj.sys.components.AbstractComponent.prototype.queryComponents = function(selector, optRoot)
+{
+	var rootElement = optRoot || this.model.element;
+	var idAttribute = this.manager.getAttributeId();
+	var foundComponents = [];
+
+	if (typeof selector == 'function') {
+		this.manager.getComponents().forEach(function(component){
+			if (component instanceof selector) {
+				foundComponents.push(component);
+			}
+		});
+	}
+	else {
+		var componentElements = /** @type {Element} */ (rootElement.querySelectorAll(selector));
+
+		for (var i = 0, len = componentElements.length; i < len; i++) {
+			var componentElement = componentElements[i];
+
+			goog.asserts.assert(componentElement,
+				'Could not find component with query ' + selector);
+			goog.asserts.assert(componentElement.hasAttribute(idAttribute),
+				'Queried element is not initialized ' + selector);
+
+			foundComponents.push(this.manager.getComponent(
+				componentElement.getAttribute(idAttribute)
+			));
+		}
+
+	}
+
+	return foundComponents;
 };
 
 /**

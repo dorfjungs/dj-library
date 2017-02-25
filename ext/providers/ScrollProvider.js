@@ -108,21 +108,27 @@ dj.ext.providers.ScrollProvider.prototype.scrollTo = function(position)
 
 /**
  * @public
+ * @param {boolean=} optRestore
  * @param {boolean} disabled
  */
-dj.ext.providers.ScrollProvider.prototype.disableScrolling = function(disabled)
+dj.ext.providers.ScrollProvider.prototype.disableScrolling = function(disabled, optRestore)
 {
 	if (this.scrollingDisabled_ != disabled) {
 	    var htmlElement = /** @type {!Element} */ (document.querySelector('html'));
 
 	    if (this.scrollingDisabled_ = disabled) {
-	        this.scrollTo(this.scrollPosition_);
-	        goog.style.setStyle(htmlElement, 'overflow', 'hidden');
+	    	if (optRestore && optRestore == true) {
+	        	this.scrollTo(this.scrollPosition_);
+	        }
 
+	        goog.style.setStyle(htmlElement, 'overflow', 'hidden');
 	        this.lastScrollPosiiton_ = this.scrollPosition_.clone();
 	    }
 	    else {
-	        this.scrollTo(this.lastScrollPosiiton_);
+	    	if (optRestore && optRestore == true) {
+	        	this.scrollTo(this.lastScrollPosiiton_);
+	    	}
+
 	        goog.style.setStyle(htmlElement, 'overflow', '');
 	    }
     }

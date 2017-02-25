@@ -64,9 +64,15 @@ dj.sys.managers.ComponentManager = function()
 
 	/**
 	 * @private
+	 * @type {Array<dj.sys.components.AbstractComponent>}
+	 */
+	this.lastComponentStack_ = [];
+
+	/**
+	 * @private
 	 * @type {goog.structs.Map<string, dj.sys.components.AbstractComponent>}
 	 */
-	this.components_ = new goog.structs.Map();;
+	this.components_ = new goog.structs.Map();
 
 	/**
 	 * @private
@@ -143,9 +149,10 @@ dj.sys.managers.ComponentManager.prototype.init = function()
 
 /**
  * @public
+ * @param {Array<Function>=} optClasses
  * @return {goog.Promise}
  */
-dj.sys.managers.ComponentManager.prototype.update = function()
+dj.sys.managers.ComponentManager.prototype.update = function(optClasses)
 {
 	var rootElement = this.getRootElement();
 	var componentModels = [];
@@ -160,6 +167,10 @@ dj.sys.managers.ComponentManager.prototype.update = function()
 
 	// Parse all elements to create the component models
 	this.componentConfig_.forEach(function(config, name){
+		if (optClasses && optClasses.indexOf(config.class) < 0) {
+			return;
+		}
+
 		var elements = rootElement.querySelectorAll('[' + this.attributeName_ + '="' + name + '"]:not([' + this.attributeId_ + '])');
 
 		// Creating the component models
@@ -188,10 +199,15 @@ dj.sys.managers.ComponentManager.prototype.update = function()
 
 		this.components_.set(model.id, component);
 		this.componentStack_.push(component);
+		this.lastComponentStack_ = goog.array.slice(this.componentStack_, 0);
 	}
 
 	// Load current stack
-	return this.loadComponentStack_(this.iniitalizationMethod_);
+	return new goog.Promise(function(resolve, reject){
+		this.loadComponentStack_(this.iniitalizationMethod_).then(function(){
+			resolve(this.lastComponentStack_);
+		}, reject, this);
+	}, this);
 };
 
 /**

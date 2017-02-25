@@ -33,19 +33,19 @@ dj.sys.components.AbstractComponent = function()
 	this.manager = null;
 
 	/**
-	 * @private
+	 * @protected
 	 * @type {goog.events.EventHandler}
 	 */
 	this.handler = new goog.events.EventHandler(this);
 
 	/**
-	 * @private
+	 * @protected
 	 * @type {dj.ext.providers.ResizeProvider}
 	 */
 	this.resizeProvider = null;
 
 	/**
-	 * @private
+	 * @protected
 	 * @type {dj.ext.providers.ScrollProvider}
 	 */
 	this.scrollProvider = null;

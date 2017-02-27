@@ -441,6 +441,15 @@ dj.sys.components.AbstractComponent.prototype.getConfig = function(property)
 
 /**
  * @public
+ * @return {goog.events.EventHandler}
+ */
+dj.sys.components.AbstractComponent.prototype.getHandler = function()
+{
+	return this.handler;
+};
+
+/**
+ * @public
  * @param {string} path
  * @return {boolean}
  */

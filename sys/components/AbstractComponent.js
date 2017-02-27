@@ -264,6 +264,48 @@ dj.sys.components.AbstractComponent.prototype.queryComponents = function(selecto
 
 /**
  * @protected
+ * @param {Element=} optRoot
+ * @param {string} query
+ * @return {Array<Element>}
+ */
+dj.sys.components.AbstractComponent.prototype.queryElements = function(query, optRoot)
+{
+	return /** @type {Array<Element>} */ (goog.array.slice(
+		(optRoot || this.model.element).querySelectorAll(query), 0));
+};
+
+/**
+ * @protected
+ * @param {Element=} optRoot
+ * @param {string} query
+ * @return {Element}
+ */
+dj.sys.components.AbstractComponent.prototype.queryElement = function(query, optRoot)
+{
+	return /** @type {Element} */ ((optRoot || this.model.element).querySelector(query));
+};
+
+/**
+ * @protected
+ * @param {Element=} optRoot
+ * @param {string|Array<string>} classes
+ * @return {Array<Element>}
+ */
+dj.sys.components.AbstractComponent.prototype.getElementsByClass = function(classes, optRoot)
+{
+	var classlist = typeof classes == 'string' ? [classes] : classes;
+	var query = '';
+
+	for (var i = 0, len = classlist.length; i < len; i++) {
+		if (i > 0) { query += ','; }
+		query += '.' + classlist[i];
+	}
+
+	return this.queryElements(query, optRoot);
+};
+
+/**
+ * @protected
  * @param {dj.sys.components.AbstractComponent} component
  * @return {goog.Promise}
  */

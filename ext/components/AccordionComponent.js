@@ -4,6 +4,7 @@ goog.provide('dj.ext.components.AccordionComponent');
 goog.require('goog.ui.IdGenerator');
 goog.require('goog.structs.Map');
 goog.require('goog.Promise');
+goog.require('goog.style');
 
 // dj
 goog.require('dj.sys.components.AbstractComponent');
@@ -34,12 +35,10 @@ goog.inherits(
  */
 dj.ext.components.AccordionComponent.ACTIVE_CLASS = 'active';
 
-/**
- * @inheritDoc
- */
-dj.ext.components.AccordionComponent.prototype.init = function()
+/** @inheritDoc */
+dj.ext.components.AccordionComponent.prototype.ready = function()
 {
-    return this.baseInit(dj.ext.components.AccordionComponent, function(resolve, reject){
+    return this.baseReady(dj.ext.components.AccordionComponent, function(resolve, reject){
         var items = this.getElementsByClass('item');
 
         goog.array.forEach(items, function(item){
@@ -49,6 +48,23 @@ dj.ext.components.AccordionComponent.prototype.init = function()
 
         goog.async.nextTick(resolve);
     });
+};
+
+/** @inheritDoc */
+dj.ext.components.AccordionComponent.prototype.init = function()
+{
+    return this.baseInit(dj.ext.components.AccordionComponent, function(resolve, reject){
+        this.listenResize();
+        resolve();
+    });
+};
+
+/** @inheritDoc */
+dj.ext.components.AccordionComponent.prototype.handeResize = function()
+{
+    dj.ext.components.AccordionComponent.base(this, 'handleResize');
+
+    this.items_.forEach(this.setContentHeight_, this);
 };
 
 /**
@@ -63,6 +79,7 @@ dj.ext.components.AccordionComponent.prototype.parseItem_ = function(item)
     var content = goog.dom.getElementByClass('content', item);
     var model = new dj.ext.models.AccordionItemModel(id, item, header, content);
 
+    this.setContentHeight_(model);
     goog.dom.dataset.set(header, 'id', id);
 
     this.getHandler().listen(header, goog.events.EventType.CLICK,
@@ -72,6 +89,21 @@ dj.ext.components.AccordionComponent.prototype.parseItem_ = function(item)
         dj.ext.components.AccordionComponent.ACTIVE_CLASS);
 
     return model;
+};
+
+/**
+ * @param {dj.ext.models.AccordionItemModel} model
+ * @private
+ */
+dj.ext.components.AccordionComponent.prototype.setContentHeight_ = function(model)
+{
+    var endHeight = 0;
+
+    goog.array.forEach(goog.dom.getChildren(model.content), function(child){
+        endHeight += goog.style.getSize(child).height;
+    });
+
+    goog.style.setStyle(model.content, 'height', endHeight + 'px');
 };
 
 /**

@@ -306,6 +306,17 @@ dj.sys.components.AbstractComponent.prototype.getElementsByClass = function(clas
 
 /**
  * @protected
+ * @param {Element=} optRoot
+ * @param {string} classes
+ * @return {Element}
+ */
+dj.sys.components.AbstractComponent.prototype.getElementByClass = function(classname, optRoot)
+{
+	return this.queryElement('.' + classname, optRoot);
+};
+
+/**
+ * @protected
  * @param {dj.sys.components.AbstractComponent} component
  * @return {goog.Promise}
  */

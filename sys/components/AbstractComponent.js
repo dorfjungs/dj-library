@@ -307,7 +307,7 @@ dj.sys.components.AbstractComponent.prototype.getElementsByClass = function(clas
 /**
  * @protected
  * @param {Element=} optRoot
- * @param {string} classes
+ * @param {string} classname
  * @return {Element}
  */
 dj.sys.components.AbstractComponent.prototype.getElementByClass = function(classname, optRoot)

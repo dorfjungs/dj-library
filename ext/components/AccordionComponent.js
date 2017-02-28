@@ -60,7 +60,7 @@ dj.ext.components.AccordionComponent.prototype.init = function()
 };
 
 /** @inheritDoc */
-dj.ext.components.AccordionComponent.prototype.handeResize = function()
+dj.ext.components.AccordionComponent.prototype.handleResize = function()
 {
     dj.ext.components.AccordionComponent.base(this, 'handleResize');
 

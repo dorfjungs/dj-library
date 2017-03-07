@@ -378,7 +378,11 @@ dj.sys.components.AbstractComponent.prototype.baseCall_ = function(name, ctor, c
 		'function ' + name + ' needs to return a promise for ' + this.model.name);
 
 	fncPromise.then(function(){
-		callback.apply(this, [resolver.resolve, resolver.reject]);
+		var ret = callback.apply(this, [resolver.resolve, resolver.reject]);
+
+		if (ret instanceof goog.Promise) {
+			ret.then(resolver.resolve, resolver.reject);
+		}
 	}, null, this);
 
 	return resolver.promise;

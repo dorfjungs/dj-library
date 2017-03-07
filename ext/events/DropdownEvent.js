@@ -13,7 +13,7 @@ dj.ext.events.DropdownEvent = function(type, model)
 	goog.base(this, type);
 
 	/**
-	 * @type {dj.models.DropdownModel}
+	 * @type {dj.ext.models.DropdownModel}
 	 */
 	this.model = model;
 };

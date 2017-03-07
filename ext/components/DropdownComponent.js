@@ -309,7 +309,7 @@ dj.ext.components.DropdownComponent.prototype.setLabel_ = function(label)
  */
 dj.ext.components.DropdownComponent.prototype.createSelect_ = function(name, options)
 {
-    var domHelper = this.getDomHelper();
+    var domHelper = goog.dom.getDomHelper();
     var optionElements = [];
 
     goog.object.forEach(options, function(name, value){
@@ -345,7 +345,7 @@ dj.ext.components.DropdownComponent.prototype.createOptions_ = function(options)
 dj.ext.components.DropdownComponent.prototype.createOptionElement_ = function(name, value)
 {
     var classStr = this.optionClasses_.join(' ');
-	var domHelper = this.getDomHelper();
+	var domHelper = goog.dom.getDomHelper();
 	var element = domHelper.createDom('div', 'option ' + classStr, [
 		domHelper.createDom('span', null, value)
 	]);

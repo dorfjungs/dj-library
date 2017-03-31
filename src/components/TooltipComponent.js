@@ -84,6 +84,19 @@ dj.components.TooltipComponent.prototype.init = function()
 			throw new Error('Please provide a content element');
 		}
 
+		if (goog.dom.classlist.contains(this.getElement(), 'align-left')) {
+			this.position_ = dj.components.TooltipComponent.Position.LEFT;
+		}
+		else if (goog.dom.classlist.contains(this.getElement(), 'align-right')) {
+			this.position_ = dj.components.TooltipComponent.Position.RIGHT;
+		}
+		else if (goog.dom.classlist.contains(this.getElement(), 'align-bottom')) {
+			this.position_ = dj.components.TooltipComponent.Position.BOTTOM;
+		}
+		else if (goog.dom.classlist.contains(this.getElement(), 'align-top')) {
+			this.position_ = dj.components.TooltipComponent.Position.TOP;
+		}
+
 		this.applyStyles_();
 		this.enable(false);
 

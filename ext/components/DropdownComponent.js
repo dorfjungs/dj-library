@@ -244,6 +244,12 @@ dj.ext.components.DropdownComponent.prototype.activateOption_ = function(option)
 	this.setLabel_(option.content);
 	this.enableActiveState_(false);
 
+	// Set selected class on acticated option.
+	// Also disable it on all other options
+	this.options_.forEach(function(opt){
+		goog.dom.classlist.enable(opt.element, 'selected', option.name == opt.name);
+	});
+
     // Handle change on native select input
     if (this.selectActive_) {
         var options = this.selectInput_['options'];

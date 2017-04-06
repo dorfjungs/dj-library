@@ -176,9 +176,7 @@ dj.ext.components.OverlayComponent.prototype.loadedClass_ = 'loaded';
  */
 dj.ext.components.OverlayComponent.prototype.noScrollClass_ = 'scrolling-disabled';
 
-/**
- * @inheritDoc
- */
+/** @export @inheritDoc */
 dj.ext.components.OverlayComponent.prototype.ready = function()
 {
 	return this.baseReady(dj.ext.components.OverlayComponent, function(resolve, reject){
@@ -230,9 +228,7 @@ dj.ext.components.OverlayComponent.prototype.ready = function()
     });
 };
 
-/**
- * @inheritDoc
- */
+/** @export @inheritDoc */
 dj.ext.components.OverlayComponent.prototype.init = function()
 {
 	return this.baseInit(dj.ext.components.OverlayComponent, function(resolve, reject){

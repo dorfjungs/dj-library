@@ -35,7 +35,7 @@ goog.inherits(
  */
 dj.ext.components.AccordionComponent.ACTIVE_CLASS = 'active';
 
-/** @inheritDoc */
+/** @export @inheritDoc */
 dj.ext.components.AccordionComponent.prototype.ready = function()
 {
     return this.baseReady(dj.ext.components.AccordionComponent, function(resolve, reject){
@@ -50,7 +50,7 @@ dj.ext.components.AccordionComponent.prototype.ready = function()
     });
 };
 
-/** @inheritDoc */
+/** @export @inheritDoc */
 dj.ext.components.AccordionComponent.prototype.init = function()
 {
     return this.baseInit(dj.ext.components.AccordionComponent, function(resolve, reject){

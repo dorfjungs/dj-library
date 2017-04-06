@@ -20,7 +20,7 @@ goog.require('dj.ext.events.DropdownEvent');
  */
 dj.ext.components.DropdownComponent = function()
 {
-	goog.base(this);
+	dj.ext.components.DropdownComponent.base(this, 'constructor');
 
 	/**
 	 * @private
@@ -94,9 +94,7 @@ goog.inherits(
 	dj.sys.components.AbstractComponent
 );
 
-/**
- * @inheritDoc
- */
+/** @export @inheritDoc */
 dj.ext.components.DropdownComponent.prototype.ready = function()
 {
 	return this.baseReady(dj.ext.components.DropdownComponent, function(resolve, reject){
@@ -137,9 +135,7 @@ dj.ext.components.DropdownComponent.prototype.ready = function()
 	});
 };
 
-/**
- * @inheritDoc
- */
+/** @export @inheritDoc */
 dj.ext.components.DropdownComponent.prototype.init = function()
 {
 	return this.baseInit(dj.ext.components.DropdownComponent, function(resolve, reject){

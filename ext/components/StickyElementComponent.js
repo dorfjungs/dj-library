@@ -104,7 +104,7 @@ dj.ext.components.StickyElementComponent.prototype.ACTIVE_CLASS = 'stuck';
  */
 dj.ext.components.StickyElementComponent.prototype.BOUND_BOTTOM_CLASS = 'bound-bottom';
 
-/** @inheritDoc */
+/** @export @inheritDoc */
 dj.ext.components.StickyElementComponent.prototype.ready = function()
 {
     return this.baseReady(dj.ext.components.StickyElementComponent, function(resolve, reject){
@@ -123,7 +123,7 @@ dj.ext.components.StickyElementComponent.prototype.ready = function()
     });
 };
 
-/** @inheritDoc */
+/** @export @inheritDoc */
 dj.ext.components.StickyElementComponent.prototype.init = function()
 {
     return this.baseInit(dj.ext.components.StickyElementComponent, function(resolve, reject){

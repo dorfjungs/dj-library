@@ -67,9 +67,7 @@ dj.ext.components.TooltipComponent.Position = {
 	LEFT: 3
 };
 
-/**
- * @inheritDoc
- */
+/** @export @inheritDoc */
 dj.ext.components.TooltipComponent.prototype.ready = function()
 {
 	return this.baseReady(dj.ext.components.TooltipComponent, function(resolve, reject){
@@ -91,9 +89,7 @@ dj.ext.components.TooltipComponent.prototype.ready = function()
 	});
 };
 
-/**
- * @inheritDoc
- */
+/** @export @inheritDoc */
 dj.ext.components.TooltipComponent.prototype.init = function()
 {
 	return this.baseInit(dj.ext.components.TooltipComponent, function(resolve, reject){

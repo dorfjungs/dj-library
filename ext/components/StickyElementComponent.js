@@ -131,11 +131,9 @@ dj.ext.components.StickyElementComponent.prototype.init = function()
         this.listenScroll();
         this.listenResize();
 
-        // Update offset position
-        this.updateOffset_();
-
         // Resolve on next tick after checking the initial position
         goog.async.nextTick(function(){
+            this.updateOffset_();
             this.checkPosition_();
             resolve();
         }, this);

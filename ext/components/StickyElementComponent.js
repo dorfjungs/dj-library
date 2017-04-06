@@ -133,8 +133,11 @@ dj.ext.components.StickyElementComponent.prototype.init = function()
 
         // Resolve on next tick after checking the initial position
         goog.async.nextTick(function(){
-            this.updateOffset_();
-            this.checkPosition_();
+            setTimeout(function(){
+                this.updateOffset_();
+                this.checkPosition_();
+            }.bind(this), 100);
+
             resolve();
         }, this);
     });

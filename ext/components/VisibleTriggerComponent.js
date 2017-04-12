@@ -1,4 +1,4 @@
-goog.provide('dj.components.VisibleTriggerComponent');
+goog.provide('dj.ext.components.VisibleTriggerComponent');
 
 // goog
 goog.require('goog.async.nextTick');
@@ -10,9 +10,9 @@ goog.require('dj.sys.components.AbstractComponent');
  * @constructor
  * @extends {dj.sys.components.AbstractComponent}
  */
-dj.components.VisibleTriggerComponent = function()
+dj.ext.components.VisibleTriggerComponent = function()
 {
-    dj.components.VisibleTriggerComponent.base(this, 'constructor');
+    dj.ext.components.VisibleTriggerComponent.base(this, 'constructor');
 
     /**
      * @private
@@ -48,23 +48,23 @@ dj.components.VisibleTriggerComponent = function()
      * @private
      * @type {number}
      */
-    this.offsetUpdateRate_ = dj.components.VisibleTriggerComponent.UpdateRate.ON_INIT;
+    this.offsetUpdateRate_ = dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_INIT;
 
     /**
      * @private
      * @type {number}
      */
-    this.sizeUpdateRate_ = dj.components.VisibleTriggerComponent.UpdateRate.ON_INIT;
+    this.sizeUpdateRate_ = dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_INIT;
 
     /**
      * @private
      * @type {number}
      */
-    this.resetMode_ = dj.components.VisibleTriggerComponent.ResetMode.BELOW;
+    this.resetMode_ = dj.ext.components.VisibleTriggerComponent.ResetMode.BELOW;
 };
 
 goog.inherits(
-    dj.components.VisibleTriggerComponent,
+    dj.ext.components.VisibleTriggerComponent,
 	dj.sys.components.AbstractComponent
 );
 
@@ -72,12 +72,12 @@ goog.inherits(
  * @private
  * @type {string}
  */
-dj.components.VisibleTriggerComponent.prototype.visibleClass_ = 'visible';
+dj.ext.components.VisibleTriggerComponent.prototype.visibleClass_ = 'visible';
 
 /**
  * @enum {number}
  */
-dj.components.VisibleTriggerComponent.ResetMode = {
+dj.ext.components.VisibleTriggerComponent.ResetMode = {
 	NONE: 1,
 	ABOVE: 2,
 	BELOW: 4
@@ -86,29 +86,29 @@ dj.components.VisibleTriggerComponent.ResetMode = {
 /**
  * @enum {number}
  */
-dj.components.VisibleTriggerComponent.UpdateRate = {
+dj.ext.components.VisibleTriggerComponent.UpdateRate = {
 	ON_INIT: 1,
 	ON_RESIZE: 2,
 	ON_SCROLL: 4
 };
 
 /** @export @inheritDoc */
-dj.components.VisibleTriggerComponent.prototype.ready = function()
+dj.ext.components.VisibleTriggerComponent.prototype.ready = function()
 {
-	return this.baseReady(dj.components.VisibleTriggerComponent, function(resolve, reject){
-		this.offsetUpdateRate_ |= dj.components.VisibleTriggerComponent.UpdateRate.ON_RESIZE;
-		this.sizeUpdateRate_ |= dj.components.VisibleTriggerComponent.UpdateRate.ON_RESIZE;
+	return this.baseReady(dj.ext.components.VisibleTriggerComponent, function(resolve, reject){
+		this.offsetUpdateRate_ |= dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_RESIZE;
+		this.sizeUpdateRate_ |= dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_RESIZE;
 
 		// Set scroll update rate
 		if (this.hasConfig('scroll-update')) {
 			var scrollUpdate = this.getConfig('scroll-update');
 
 			if ((/offset/gi).test(scrollUpdate)) {
-				this.offsetUpdateRate_ |= dj.components.VisibleTriggerComponent.UpdateRate.ON_SCROLL;
+				this.offsetUpdateRate_ |= dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_SCROLL;
 			}
 
 			if ((/size/gi).test(scrollUpdate)) {
-				this.sizeUpdateRate_ |= dj.components.VisibleTriggerComponent.UpdateRate.ON_SCROLL;
+				this.sizeUpdateRate_ |= dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_SCROLL;
 			}
 		}
 
@@ -118,11 +118,11 @@ dj.components.VisibleTriggerComponent.prototype.ready = function()
 		}
 
 		// Initial update
-		if (this.offsetUpdateRate_ & dj.components.VisibleTriggerComponent.UpdateRate.ON_INIT) {
+		if (this.offsetUpdateRate_ & dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_INIT) {
 			this.updateOffset_();
 		}
 
-		if (this.sizeUpdateRate_ & dj.components.VisibleTriggerComponent.UpdateRate.ON_INIT) {
+		if (this.sizeUpdateRate_ & dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_INIT) {
 			this.updateSize_();
 		}
 
@@ -131,9 +131,9 @@ dj.components.VisibleTriggerComponent.prototype.ready = function()
 };
 
 /** @export @inheritDoc  */
-dj.components.VisibleTriggerComponent.prototype.init = function()
+dj.ext.components.VisibleTriggerComponent.prototype.init = function()
 {
-	return this.baseInit(dj.components.VisibleTriggerComponent, function(resolve, reject){
+	return this.baseInit(dj.ext.components.VisibleTriggerComponent, function(resolve, reject){
 		this.listenResize();
 		this.listenScroll();
 
@@ -145,7 +145,7 @@ dj.components.VisibleTriggerComponent.prototype.init = function()
 /**
  * @private
  */
-dj.components.VisibleTriggerComponent.prototype.updateOffset_ = function()
+dj.ext.components.VisibleTriggerComponent.prototype.updateOffset_ = function()
 {
 	this.elementOffset_ = goog.math.Coordinate.sum(
 		goog.style.getPageOffset(this.getElement()),
@@ -156,21 +156,21 @@ dj.components.VisibleTriggerComponent.prototype.updateOffset_ = function()
 /**
  * @private
  */
-dj.components.VisibleTriggerComponent.prototype.updateSize_ = function()
+dj.ext.components.VisibleTriggerComponent.prototype.updateSize_ = function()
 {
 	this.elementSize_ = goog.style.getSize(this.getElement());
 };
 
 /** @inheritDoc */
-dj.components.VisibleTriggerComponent.prototype.handleScroll = function()
+dj.ext.components.VisibleTriggerComponent.prototype.handleScroll = function()
 {
-    dj.components.VisibleTriggerComponent.base(this, 'handleScroll');
+    dj.ext.components.VisibleTriggerComponent.base(this, 'handleScroll');
 
-	if (this.offsetUpdateRate_ & dj.components.VisibleTriggerComponent.UpdateRate.ON_SCROLL) {
+	if (this.offsetUpdateRate_ & dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_SCROLL) {
 		this.updateOffset_();
 	}
 
-	if (this.sizeUpdateRate_ & dj.components.VisibleTriggerComponent.UpdateRate.ON_SCROLL) {
+	if (this.sizeUpdateRate_ & dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_SCROLL) {
 		this.updateSize_();
 	}
 
@@ -178,15 +178,15 @@ dj.components.VisibleTriggerComponent.prototype.handleScroll = function()
 };
 
 /** @inheritDoc */
-dj.components.VisibleTriggerComponent.prototype.handleResize = function()
+dj.ext.components.VisibleTriggerComponent.prototype.handleResize = function()
 {
-    dj.components.VisibleTriggerComponent.base(this, 'handleResize');
+    dj.ext.components.VisibleTriggerComponent.base(this, 'handleResize');
 
-	if (this.offsetUpdateRate_ & dj.components.VisibleTriggerComponent.UpdateRate.ON_RESIZE) {
+	if (this.offsetUpdateRate_ & dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_RESIZE) {
 		this.updateOffset_();
 	}
 
-	if (this.sizeUpdateRate_ & dj.components.VisibleTriggerComponent.UpdateRate.ON_RESIZE) {
+	if (this.sizeUpdateRate_ & dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_RESIZE) {
 		this.updateSize_();
 	}
 };
@@ -194,7 +194,7 @@ dj.components.VisibleTriggerComponent.prototype.handleResize = function()
 /**
  * @private
  */
-dj.components.VisibleTriggerComponent.prototype.updateVisiblity_ = function()
+dj.ext.components.VisibleTriggerComponent.prototype.updateVisiblity_ = function()
 {
 	var scrollPosition = this.getScrollPosition();
 	var windowSize = this.getWindowSize();
@@ -204,14 +204,14 @@ dj.components.VisibleTriggerComponent.prototype.updateVisiblity_ = function()
 		this.wasVisible_ = true;
 	}
 
-	if (this.resetMode_ & dj.components.VisibleTriggerComponent.ResetMode.NONE) {
+	if (this.resetMode_ & dj.ext.components.VisibleTriggerComponent.ResetMode.NONE) {
 		visible = this.wasVisible_ || visible;
 	}
 	else {
 		var below = this.isElementBelow_(scrollPosition);
 		var above = this.isElementAbove_(scrollPosition);
 
-		if (this.resetMode_ & dj.components.VisibleTriggerComponent.ResetMode.ABOVE) {
+		if (this.resetMode_ & dj.ext.components.VisibleTriggerComponent.ResetMode.ABOVE) {
 			if (this.wasVisible_ && above) {
 				visible = false;
 			}
@@ -220,7 +220,7 @@ dj.components.VisibleTriggerComponent.prototype.updateVisiblity_ = function()
 			}
 		}
 
-		if (this.resetMode_ & dj.components.VisibleTriggerComponent.ResetMode.BELOW) {
+		if (this.resetMode_ & dj.ext.components.VisibleTriggerComponent.ResetMode.BELOW) {
 			if (this.wasVisible_ && above) {
 				visible = true;
 			}
@@ -229,8 +229,8 @@ dj.components.VisibleTriggerComponent.prototype.updateVisiblity_ = function()
 			}
 		}
 
-		if (this.resetMode_ & dj.components.VisibleTriggerComponent.ResetMode.BELOW &&
-			this.resetMode_ & dj.components.VisibleTriggerComponent.ResetMode.ABOVE) {
+		if (this.resetMode_ & dj.ext.components.VisibleTriggerComponent.ResetMode.BELOW &&
+			this.resetMode_ & dj.ext.components.VisibleTriggerComponent.ResetMode.ABOVE) {
 			if (above || below) {
 				visible = false;
 			}
@@ -249,7 +249,7 @@ dj.components.VisibleTriggerComponent.prototype.updateVisiblity_ = function()
  * @param {goog.math.Coordinate} position
  * @return {boolean}
  */
-dj.components.VisibleTriggerComponent.prototype.isElementAbove_ = function(position)
+dj.ext.components.VisibleTriggerComponent.prototype.isElementAbove_ = function(position)
 {
 	return position.y > this.elementOffset_.y + this.elementSize_.height;
 };
@@ -259,7 +259,7 @@ dj.components.VisibleTriggerComponent.prototype.isElementAbove_ = function(posit
  * @param {goog.math.Coordinate} position
  * @return {boolean}
  */
-dj.components.VisibleTriggerComponent.prototype.isElementBelow_ = function(position)
+dj.ext.components.VisibleTriggerComponent.prototype.isElementBelow_ = function(position)
 {
 	var windowSize = this.getWindowSize();
 
@@ -269,7 +269,7 @@ dj.components.VisibleTriggerComponent.prototype.isElementBelow_ = function(posit
 /**
  * @return {boolean}
  */
-dj.components.VisibleTriggerComponent.prototype.isVisible = function()
+dj.ext.components.VisibleTriggerComponent.prototype.isVisible = function()
 {
 	return this.visible_;
 };
@@ -277,7 +277,7 @@ dj.components.VisibleTriggerComponent.prototype.isVisible = function()
 /**
  * @return {boolean}
  */
-dj.components.VisibleTriggerComponent.prototype.wasVisible = function()
+dj.ext.components.VisibleTriggerComponent.prototype.wasVisible = function()
 {
 	return this.wasVisible_;
 };
@@ -286,7 +286,7 @@ dj.components.VisibleTriggerComponent.prototype.wasVisible = function()
  * @param {number} x
  * @param {number} y
  */
-dj.components.VisibleTriggerComponent.prototype.setVisibleOffset = function(x, y)
+dj.ext.components.VisibleTriggerComponent.prototype.setVisibleOffset = function(x, y)
 {
 	this.visibleOffset_.x = x;
 	this.visibleOffset_.y = y;
@@ -298,7 +298,7 @@ dj.components.VisibleTriggerComponent.prototype.setVisibleOffset = function(x, y
  * @protected
  * @param {boolean} visible
  */
-dj.components.VisibleTriggerComponent.prototype.visiblityChanged = function(visible)
+dj.ext.components.VisibleTriggerComponent.prototype.visiblityChanged = function(visible)
 {
 
 };

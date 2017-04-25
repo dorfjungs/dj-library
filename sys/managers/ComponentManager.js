@@ -219,6 +219,9 @@ dj.sys.managers.ComponentManager.prototype.prepare = function(element)
 {
 	var name = element.getAttribute(this.attributeName_);
 	var config = this.componentConfig_.get(name);
+
+	goog.asserts.assert(config, 'Config for component "' + name + '" not found');
+
 	var model = this.parseComponentElement_(name, element, config.class, config.config);
 
 	element.setAttribute(this.attributeId_, model.id);

@@ -61,7 +61,7 @@ dj.ext.dom.classlist.inline.unregister = function(name)
  */
 dj.ext.dom.classlist.inline.edit = function(name, key, value)
 {
-	this.checkClass_(name);
+	dj.ext.dom.classlist.inline.checkClass_(name);
 	dj.ext.dom.classlist.inline.classes_.get(name)[key] = value;
 };
 
@@ -81,14 +81,14 @@ dj.ext.dom.classlist.inline.checkClass_ = function(name)
 dj.ext.dom.classlist.inline.apply_ = function()
 {
 	dj.ext.dom.classlist.inline.states_.forEach(function(elements, name){
-		this.checkClass_(name);
+		dj.ext.dom.classlist.inline.checkClass_(name);
 
 		var properties = dj.ext.dom.classlist.inline.classes_.get(name);
 
 		for (var i = 0, len = elements.length; i < len; i++) {
 			goog.style.setStyle(elements[i], properties);
 		}
-	}, this);
+	});
 };
 
 /**
@@ -149,7 +149,7 @@ dj.ext.dom.classlist.inline.add = function(element, name)
 dj.ext.dom.classlist.inline.remove = function(element, name)
 {
 	if (dj.ext.dom.classlist.inline.classes_.containsKey(name)) {
-		this.checkClass_(name);
+		dj.ext.dom.classlist.inline.checkClass_(name);
 
 		var elements = dj.ext.dom.classlist.inline.states_.get(name);
 		var properties = dj.ext.dom.classlist.inline.classes_.get(name);

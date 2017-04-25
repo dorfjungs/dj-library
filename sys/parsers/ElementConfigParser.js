@@ -25,7 +25,25 @@ dj.sys.parsers.ElementConfigParser.prototype.parse = function(value, componentMo
 	var selector = this.getValue(value);
 	var target = componentModel.element;
 
-	if (this.hasParam('*', value)) {
+	if (this.hasParam('**', value)) {
+		// Advanced search by the highest parent element
+		var parent = goog.dom.getParentElement(target);
+
+		while (parent) {
+			var current = goog.dom.getParentElement(parent);
+
+			if (!current) {
+				break;
+			}
+			else {
+				parent = current;
+			}
+		}
+
+		target = parent;
+	}
+	else if (this.hasParam('*', value)) {
+		// Search in document element
 		target = document.documentElement;
 	}
 

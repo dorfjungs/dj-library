@@ -211,6 +211,33 @@ dj.sys.managers.ComponentManager.prototype.update = function(optClasses)
 };
 
 /**
+ * @public
+ * @param {Element} element
+ * @return {dj.sys.components.AbstractComponent}
+ */
+dj.sys.managers.ComponentManager.prototype.prepare = function(element)
+{
+	var name = element.getAttribute(this.attributeName_);
+	var config = this.componentConfig_.get(name);
+	var model = this.parseComponentElement_(name, element, config.class, config.config);
+
+	element.setAttribute(this.attributeId_, model.id);
+
+	this.componentModels_.set(model.id, model);
+	this.componentModels_.forEach(function(model){
+		this.setParentModel_(model);
+	}, this);
+
+	var component = this.instatiateComponentByModel_(model);
+
+	this.components_.set(model.id, component);
+	this.componentStack_.push(component);
+	this.lastComponentStack_.push(component);
+
+	return component;
+};
+
+/**
  * @return {goog.Promise}
  */
 dj.sys.managers.ComponentManager.prototype.initComponent = function(component)
@@ -243,11 +270,16 @@ dj.sys.managers.ComponentManager.prototype.initComponent = function(component)
 			else {
 				component.init().then(
 					function(){
+						if (this.componentStack_.indexOf(component) > -1) {
+							goog.array.remove(this.componentStack_, component);
+						}
+
 						component.setInitialized(true);
 						component.setPendingPromise(null);
 						resolver.resolve();
 					},
-					resolver.reject
+					resolver.reject,
+					this
 				);
 			}
 		}, null, this);

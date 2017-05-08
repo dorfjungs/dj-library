@@ -1,6 +1,6 @@
 {
 	"name": "dj-library",
-	"version": "1.0.55",
+	"version": "1.0.56",
 	"description": "An extension library for the underrated google closure library",
 	"keywords": ["google", "closure", "components", "dorfjungs", "javascript"],
 	"homepage": "https://github.com/Dorfjungs/dj-library",

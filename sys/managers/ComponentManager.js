@@ -52,12 +52,6 @@ dj.sys.managers.ComponentManager = function()
 
 	/**
 	 * @private
-	 * @type {number}
-	 */
-	this.uidCounter_ = 0;
-
-	/**
-	 * @private
 	 * @type {Array<dj.sys.components.AbstractComponent>}
 	 */
 	this.componentStack_ = [];
@@ -85,10 +79,17 @@ dj.sys.managers.ComponentManager = function()
 	 * @type {goog.structs.Map<string, {
 	 *    name: string,
 	 *    class: Function,
-	 *    config: Array<dj.sys.models.config.AbstractConfigModel>
+	 *    config: Array<dj.sys.models.config.AbstractConfigModel>,
+	 *    rules: number
 	 * }>}
 	 */
 	this.componentConfig_ = new goog.structs.Map();
+
+	/**
+	 * @private
+	 * @type {Array<dj.sys.managers.ComponentManager>}
+	 */
+	this.includedManagers_ = [];
 
 	/**
 	 * @private
@@ -107,6 +108,18 @@ goog.inherits(
 	dj.sys.managers.ComponentManager,
 	goog.events.EventTarget
 );
+
+/**
+ * @type {number}
+ */
+dj.sys.managers.ComponentManager.UID_COUNTER = 0;
+
+/**
+ * @enum {string}
+ */
+dj.sys.managers.ComponentManager.ComponentRules = {
+	DENY_MULTIPLE: 1
+};
 
 /**
  * @enum {number}
@@ -128,13 +141,15 @@ dj.sys.managers.ComponentManager.InitializationMethod = {
  * @param {string} name
  * @param {Function} ctor
  * @param {Array<dj.sys.models.config.AbstractConfigModel>=} optConfig
+ * @param {string=} optRules
  */
-dj.sys.managers.ComponentManager.prototype.add = function(name, ctor, optConfig)
+dj.sys.managers.ComponentManager.prototype.add = function(name, ctor, optConfig, optRules)
 {
 	this.componentConfig_.set(name, {
 		name: name,
 		class: ctor,
-		config: optConfig || []
+		config: optConfig || [],
+		rules: optRules || null
 	});
 };
 
@@ -171,11 +186,19 @@ dj.sys.managers.ComponentManager.prototype.update = function(optClasses)
 			return;
 		}
 
-		var elements = rootElement.querySelectorAll('[' + this.attributeName_ + '="' + name + '"]:not([' + this.attributeId_ + '])');
+		var elements = rootElement.querySelectorAll(
+			'[' + this.attributeName_ + '="' + name + '"]:not([' + this.attributeId_ + '])'
+		);
 
 		// Creating the component models
 		goog.array.forEach(elements, function(element){
-			var model = this.parseComponentElement_(name, element, config.class, config.config);
+			var model = this.parseComponentElement_(name, element);
+
+			if (model.hasRule(dj.sys.managers.ComponentManager.ComponentRules.DENY_MULTIPLE)) {
+				if (this.getModelsByName(name).getCount() >= 1) {
+					throw new Error('The component "' + name + '" can\'t exist multiple times');
+				}
+			}
 
 			element.setAttribute(this.attributeId_, model.id);
 			componentModels.push(model);
@@ -420,7 +443,7 @@ dj.sys.managers.ComponentManager.prototype.setParentModel_ = function(model)
  */
 dj.sys.managers.ComponentManager.prototype.getNextUid_ = function()
 {
-	return (++this.uidCounter_).toString();
+	return (++dj.sys.managers.ComponentManager.UID_COUNTER).toString();
 };
 
 /**
@@ -437,13 +460,20 @@ dj.sys.managers.ComponentManager.prototype.isBase64_ = function(str)
  * @private
  * @param {Element} element
  * @param {string} name
- * @param {Array<dj.sys.models.config.AbstractConfigModel>} config
  * @return {dj.sys.models.ComponentModel}
  */
-dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(name, element, ctor, config)
+dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(name, element)
 {
-	var componentModel = new dj.sys.models.ComponentModel(this.getNextUid_(), name, element, ctor, config);
+	var componentConfig = this.componentConfig_.get(name);
 	var dynamicConfig = element.getAttribute(this.attributeConfig_);
+	var componentModel = new dj.sys.models.ComponentModel(
+		this.getNextUid_(),
+		name,
+		element,
+		componentConfig.class,
+		componentConfig.config,
+		componentConfig.rules
+	);
 
 	if (dynamicConfig) {
 		if (this.isBase64_(dynamicConfig)) {
@@ -456,7 +486,7 @@ dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(nam
 		componentModel.dynamicConfig = goog.json.parse(dynamicConfig);
 	}
 
-	this.parseStaticConfig_(componentModel, config);
+	this.parseStaticConfig_(componentModel, componentConfig.config);
 
 	return componentModel;
 };
@@ -505,6 +535,18 @@ dj.sys.managers.ComponentManager.prototype.parseComponentConfigParsers_ = functi
 
 /**
  * @public
+ * @param {dj.sys.managers.ComponentManager} manager
+ * @return {dj.sys.managers.ComponentManager}
+ */
+dj.sys.managers.ComponentManager.prototype.include = function(manager)
+{
+	this.includedManagers_.push(manager);
+
+	return this;
+};
+
+/**
+ * @public
  * @return {Element}
  */
 dj.sys.managers.ComponentManager.prototype.getRootElement = function()
@@ -541,19 +583,139 @@ dj.sys.managers.ComponentManager.prototype.getAttributeId = function()
 
 /**
  * @public
+ * @param {boolean=} optNoIncludes
+ * @return {goog.structs.Map<string, dj.sys.components.ComponentModel>}
+ */
+dj.sys.managers.ComponentManager.prototype.getModels = function(optNoIncludes)
+{
+	var models = this.componentModels_;
+
+	if (!optNoIncludes) {
+		var includedModels = this.getIncludedModels();
+
+		includedModels.addAll(models);
+
+		models = includedModels;
+	}
+
+	return models;
+};
+
+/**
+ * @public
  * @param {string} id
+ * @param {boolean=} optNoIncludes
+ * @return {dj.sys.components.ComponentModel}
+ */
+dj.sys.managers.ComponentManager.prototype.getModelById = function(id, optNoIncludes)
+{
+	var models = this.getModels(optNoIncludes);
+
+	return models.get(id);
+};
+
+/**
+ * @public
+ * @param {string} name
+ * @param {boolean=} optNoIncludes
+ * @return {goog.structs.Map<string, dj.sys.components.ComponentModel>}
+ */
+dj.sys.managers.ComponentManager.prototype.getModelsByName = function(name, optNoIncludes)
+{
+	var models = this.getModels(optNoIncludes);
+
+	return new goog.structs.Map(goog.object.filter(models.toObject(), function(model){
+		return model.name == name;
+	}));
+};
+
+
+/**
+ * @public
+ * @return {goog.structs.Map<string, dj.sys.components.ComponentModel>}
+ */
+dj.sys.managers.ComponentManager.prototype.getIncludedModels = function()
+{
+	var models = new goog.structs.Map();
+
+	for (var i = 0, len = this.includedManagers_.length; i < len; i++) {
+		models.addAll(this.includedManagers_[i].getModels());
+	}
+
+	return models;
+};
+
+/**
+ * @public
+ * @deprecated
+ * @param {string} id
+ * @param {boolean=} optNoIncludes
  * @return {dj.sys.components.AbstractComponent}
  */
-dj.sys.managers.ComponentManager.prototype.getComponent = function(id)
+dj.sys.managers.ComponentManager.prototype.getComponent = function(id, optNoIncludes)
 {
-	return this.components_.get(id);
+	return this.getComponentById(id, optNoIncludes);
+};
+
+/**
+ * @public
+ * @param {string} id
+ * @param {boolean=} optNoIncludes
+ * @return {dj.sys.components.AbstractComponent}
+ */
+dj.sys.managers.ComponentManager.prototype.getComponentById = function(id, optNoIncludes)
+{
+	var components = this.getComponents(optNoIncludes);
+
+	return components.get(id);
+};
+
+/**
+ * @public
+ * @param {string} name
+ * @param {boolean=} optNoIncludes
+ * @return {goog.structs.Map<string, dj.sys.components.AbstractComponent>}
+ */
+dj.sys.managers.ComponentManager.prototype.getComponentsByName = function(name, optNoIncludes)
+{
+	var components = this.getComponents(optNoIncludes);
+
+	return new goog.structs.Map(goog.object.filter(components.toObject(), function(component){
+		return component.getName() == name;
+	}));
+};
+
+/**
+ * @public
+ * @param {boolean=} optNoIncludes
+ * @return {goog.structs.Map<string, dj.sys.components.AbstractComponent>}
+ */
+dj.sys.managers.ComponentManager.prototype.getComponents = function(optNoIncludes)
+{
+	var components = this.components_;
+
+	if (!optNoIncludes) {
+		var includedComponents = this.getIncludedComponents();
+
+		includedComponents.addAll(components);
+
+		components = includedComponents;
+	}
+
+	return components;
 };
 
 /**
  * @public
  * @return {goog.structs.Map<string, dj.sys.components.AbstractComponent>}
  */
-dj.sys.managers.ComponentManager.prototype.getComponents = function()
+dj.sys.managers.ComponentManager.prototype.getIncludedComponents = function()
 {
-	return this.components_;
+	var components = new goog.structs.Map();
+
+	for (var i = 0, len = this.includedManagers_.length; i < len; i++) {
+		components.addAll(this.includedManagers_[i].getComponents());
+	}
+
+	return components;
 };

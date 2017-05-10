@@ -69,7 +69,7 @@ dj.ext.router.handlers.ContentHandler.prototype.load = function(url, fromRoute, 
 			}
 
 			this.xhr_ = null;
-		}.bind(this));
+		}.bind(this), toRoute.loadMethod);
 	}, this);
 
 	return this.contentParser_;

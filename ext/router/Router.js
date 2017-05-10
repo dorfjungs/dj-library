@@ -278,6 +278,20 @@ dj.ext.router.Router.prototype.addRouteByElement = function(element)
 	);
 	var queryData = route.loadUrl.getQueryData();
 
+	if (goog.dom.dataset.has(element, 'loadMethod')) {
+		route.loadMethod = goog.dom.dataset.get(element, 'loadMethod');
+	}
+
+	if (goog.dom.dataset.has(element, 'routeMethod')) {
+		var routeMethod = goog.dom.dataset.get(element, 'routeMethod');
+
+		switch (routeMethod) {
+			case 'internal':
+				route.routeMethod = dj.ext.router.models.RouteModel.RouteMethod.INTERNAL;
+				break;
+		}
+	}
+
 	this.routeParameters_.forEach(function(value, key){
 		queryData.add(key, value);
 	});

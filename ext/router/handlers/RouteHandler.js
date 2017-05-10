@@ -130,19 +130,21 @@ dj.ext.router.handlers.RouteHandler.prototype.fulfillActiveRoute_ = function(opt
 
 	var serializedRoute = dj.ext.router.models.RouteModel.serialize(this.activeRoute_);
 
-	if (optReplace) {
-		window.history.replaceState({
-			'activeRoute': serializedRoute
-		}, '', this.activeRoute_.pushUrl);
-	}
-	else {
-		window.history.pushState({
-			'activeRoute': serializedRoute
-		}, '', this.activeRoute_.pushUrl);
-	}
+	if (this.activeRoute_.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.DEFAULT) {
+		if (optReplace) {
+			window.history.replaceState({
+				'activeRoute': serializedRoute
+			}, '', this.activeRoute_.pushUrl);
+		}
+		else {
+			window.history.pushState({
+				'activeRoute': serializedRoute
+			}, '', this.activeRoute_.pushUrl);
+		}
 
-	if (!goog.string.isEmpty(this.activeRoute_.title)) {
-		document.title = this.activeRoute_.title;
+		if (!goog.string.isEmpty(this.activeRoute_.title)) {
+			document.title = this.activeRoute_.title;
+		}
 	}
 
 	if (!optPreventEvents) {

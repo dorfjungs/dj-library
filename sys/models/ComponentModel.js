@@ -11,8 +11,9 @@ goog.require('goog.structs.Map');
  * @param {Element} element
  * @param {Function} ctor
  * @param {Array<dj.sys.models.config.AbstractConfigModel>=} optStaticConfig
+ * @param {number=} optRules
  */
-dj.sys.models.ComponentModel = function(id, name, element, ctor, optStaticConfig)
+dj.sys.models.ComponentModel = function(id, name, element, ctor, optStaticConfig, optRules)
 {
 	/**
 	 * @public
@@ -79,4 +80,20 @@ dj.sys.models.ComponentModel = function(id, name, element, ctor, optStaticConfig
 	 * @type {Object}
 	 */
 	this.dynamicConfig = {};
+
+	/**
+	 * @public
+	 * @type {number}
+	 */
+	this.rules = isNaN(optRules) ? 0 : optRules;
+};
+
+/**
+ * @public
+ * @param {number} rule
+ * @return {boolean}
+ */
+dj.sys.models.ComponentModel.prototype.hasRule = function(rule)
+{
+	return !!(this.rules & rule);
 };

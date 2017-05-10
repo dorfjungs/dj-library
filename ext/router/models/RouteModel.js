@@ -31,6 +31,18 @@ dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
 	 * @public
 	 * @type {string}
 	 */
+	this.loadMethod = 'GET';
+
+	/**
+	 * @public
+	 * @type {number}
+	 */
+	this.routeMethod = dj.ext.router.models.RouteModel.RouteMethod.DEFAULT;
+
+	/**
+	 * @public
+	 * @type {string}
+	 */
 	this.pushUrl = this.loadUrl.getPath();
 
 	/**
@@ -50,6 +62,14 @@ dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
 	 * @type {boolean}
 	 */
 	this.active = false;
+};
+
+/**
+ * @enum {string}
+ */
+dj.ext.router.models.RouteModel.RouteMethod = {
+	DEFAULT: 1,
+	INTERNAL: 2
 };
 
 /**
@@ -76,6 +96,8 @@ dj.ext.router.models.RouteModel.prototype.clone = function()
 	var route = new dj.ext.router.models.RouteModel(
 		this.loadUrl.toString(), this.title, this.parameters, this.id);
 
+	route.loadMethod = this.loadMethod;
+	route.routeMethod = this.routeMethod;
 	route.active = this.active;
 
 	return route;
@@ -92,7 +114,10 @@ dj.ext.router.models.RouteModel.parse = function(string)
 		obj['url'], obj['title'], obj['parameters'], obj['id']
 	);
 
+	route.loadMethod = obj['loadMethod'];
+	route.routeMethod = obj['routeMethod'];
 	route.active = obj['active'];
+
 
 	return route;
 };
@@ -107,6 +132,8 @@ dj.ext.router.models.RouteModel.serialize = function(route)
 		'id': route.id,
 		'url': route.loadUrl.toString(),
 		'title': route.title,
+		'loadMethod': route.loadMethod,
+		'routeMethod': route.routeMethod,
 		'parameters': route.parameters.toObject(),
 		'active': route.active
 	});

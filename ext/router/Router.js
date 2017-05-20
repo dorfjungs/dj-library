@@ -266,6 +266,22 @@ dj.ext.router.Router.prototype.cleanRoutes = function(optScope)
 
 /**
  * @public
+ * @param {dj.ext.router.models.RouteModel} route
+ */
+dj.ext.router.Router.prototype.addRoute = function(route)
+{
+	var queryData = route.loadUrl.getQueryData();
+
+	this.routeParameters_.forEach(function(value, key){
+		queryData.add(key, value);
+	});
+
+	this.addRouteListener_(route);
+	this.routes_.push(route);
+};
+
+/**
+ * @public
  * @param {Element} element
  */
 dj.ext.router.Router.prototype.addRouteByElement = function(element)

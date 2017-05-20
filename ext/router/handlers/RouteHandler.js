@@ -142,9 +142,10 @@ dj.ext.router.handlers.RouteHandler.prototype.fulfillActiveRoute_ = function(opt
 			}, '', this.activeRoute_.pushUrl);
 		}
 
-		if (!goog.string.isEmpty(this.activeRoute_.title)) {
-			document.title = this.activeRoute_.title;
-		}
+	}
+
+	if (!goog.string.isEmpty(this.activeRoute_.title)) {
+		document.title = this.activeRoute_.title;
 	}
 
 	if (!optPreventEvents) {

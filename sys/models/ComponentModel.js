@@ -85,7 +85,7 @@ dj.sys.models.ComponentModel = function(id, name, element, ctor, optStaticConfig
 	 * @public
 	 * @type {number}
 	 */
-	this.rules = isNaN(optRules) ? 0 : optRules;
+	this.rules = isNaN(optRules) || optRules == undefined ? 0 : optRules;
 };
 
 /**

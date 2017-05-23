@@ -115,7 +115,7 @@ goog.inherits(
 dj.sys.managers.ComponentManager.UID_COUNTER = 0;
 
 /**
- * @enum {string}
+ * @enum {number}
  */
 dj.sys.managers.ComponentManager.ComponentRules = {
 	DENY_MULTIPLE: 1
@@ -141,7 +141,7 @@ dj.sys.managers.ComponentManager.InitializationMethod = {
  * @param {string} name
  * @param {Function} ctor
  * @param {Array<dj.sys.models.config.AbstractConfigModel>=} optConfig
- * @param {string=} optRules
+ * @param {number=} optRules
  */
 dj.sys.managers.ComponentManager.prototype.add = function(name, ctor, optConfig, optRules)
 {
@@ -149,7 +149,7 @@ dj.sys.managers.ComponentManager.prototype.add = function(name, ctor, optConfig,
 		name: name,
 		class: ctor,
 		config: optConfig || [],
-		rules: optRules || null
+		rules: optRules || 0
 	});
 };
 
@@ -245,7 +245,7 @@ dj.sys.managers.ComponentManager.prototype.prepare = function(element)
 
 	goog.asserts.assert(config, 'Config for component "' + name + '" not found');
 
-	var model = this.parseComponentElement_(name, element, config.class, config.config);
+	var model = this.parseComponentElement_(name, element);
 
 	element.setAttribute(this.attributeId_, model.id);
 
@@ -584,7 +584,7 @@ dj.sys.managers.ComponentManager.prototype.getAttributeId = function()
 /**
  * @public
  * @param {boolean=} optNoIncludes
- * @return {goog.structs.Map<string, dj.sys.components.ComponentModel>}
+ * @return {goog.structs.Map<string, dj.sys.models.ComponentModel>}
  */
 dj.sys.managers.ComponentManager.prototype.getModels = function(optNoIncludes)
 {
@@ -605,7 +605,7 @@ dj.sys.managers.ComponentManager.prototype.getModels = function(optNoIncludes)
  * @public
  * @param {string} id
  * @param {boolean=} optNoIncludes
- * @return {dj.sys.components.ComponentModel}
+ * @return {dj.sys.models.ComponentModel}
  */
 dj.sys.managers.ComponentManager.prototype.getModelById = function(id, optNoIncludes)
 {
@@ -618,7 +618,7 @@ dj.sys.managers.ComponentManager.prototype.getModelById = function(id, optNoIncl
  * @public
  * @param {string} name
  * @param {boolean=} optNoIncludes
- * @return {goog.structs.Map<string, dj.sys.components.ComponentModel>}
+ * @return {goog.structs.Map<string, dj.sys.models.ComponentModel>}
  */
 dj.sys.managers.ComponentManager.prototype.getModelsByName = function(name, optNoIncludes)
 {
@@ -632,7 +632,7 @@ dj.sys.managers.ComponentManager.prototype.getModelsByName = function(name, optN
 
 /**
  * @public
- * @return {goog.structs.Map<string, dj.sys.components.ComponentModel>}
+ * @return {goog.structs.Map<string, dj.sys.models.ComponentModel>}
  */
 dj.sys.managers.ComponentManager.prototype.getIncludedModels = function()
 {

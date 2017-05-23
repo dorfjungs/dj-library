@@ -216,7 +216,7 @@ dj.sys.components.AbstractComponent.prototype.queryComponent = function(selector
 			'Queried element is not initialized ' + selector);
 
 		var componentId = componentElement.getAttribute(idAttribute);
-		foundComponent = this.manager.getComponent(componentId);
+		foundComponent = this.manager.getComponentById(componentId);
 	}
 
 	return foundComponent;
@@ -252,7 +252,7 @@ dj.sys.components.AbstractComponent.prototype.queryComponents = function(selecto
 			goog.asserts.assert(componentElement.hasAttribute(idAttribute),
 				'Queried element is not initialized ' + selector);
 
-			foundComponents.push(this.manager.getComponent(
+			foundComponents.push(this.manager.getComponentById(
 				componentElement.getAttribute(idAttribute)
 			));
 		}

@@ -108,8 +108,8 @@ dj.ext.preloaders.ImagePreloader.prototype.preload = function(optCallback, optCt
 dj.ext.preloaders.ImagePreloader.prototype.preloadSource_ = function(src)
 {
 	return new goog.Promise(function(resolve, reject){
-		dj.ext.preloaders.ImagePreloader.preloadSource(src).then(function(){
-			resolve();
+		dj.ext.preloaders.ImagePreloader.preloadSource(src).then(function(image){
+			resolve(image);
 			this.sourceCounter_++;
 
 			if (this.preloadCallback_) {
@@ -138,8 +138,13 @@ dj.ext.preloaders.ImagePreloader.preloadSource = function(src)
 	return new goog.Promise(function(resolve, reject){
 		var image = goog.dom.createDom('img');
 
-		goog.events.listen(image, goog.events.EventType.ERROR, reject);
-		goog.events.listen(image, goog.events.EventType.LOAD, resolve);
+		goog.events.listen(image, goog.events.EventType.ERROR, function(){
+            reject(image);
+        });
+
+		goog.events.listen(image, goog.events.EventType.LOAD, function(){
+            resolve(image);
+        });
 
 		image['src'] = src;
 	});

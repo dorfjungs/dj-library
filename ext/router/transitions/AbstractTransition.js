@@ -42,11 +42,21 @@ dj.ext.router.transitions.AbstractTransition = function(router, namespace)
  */
 dj.ext.router.transitions.AbstractTransition.prototype.init = function()
 {
-	this.handler_.listen(this.router_.getContentHandler(), dj.ext.router.events.ContentEvent.EventType.CONTENT_LOADED, this.handleContentLoaded_)
+	this.handler_.listen(this.router_.getContentHandler(), dj.ext.router.events.ContentEvent.EventType.CONTENT_LOAD, this.handleContentLoad_)
+                .listen(this.router_.getContentHandler(), dj.ext.router.events.ContentEvent.EventType.CONTENT_LOADED, this.handleContentLoaded_)
 				.listen(this.router_.getContentHandler(), dj.ext.router.events.ContentEvent.EventType.CONTENT_READY, this.handleContentReady_)
 				.listen(this.router_.getContentHandler(), dj.ext.router.events.ContentEvent.EventType.CONTENT_PARSED, this.handleContentParsed_)
 				.listen(this.router_.getContentHandler(), dj.ext.router.events.ContentEvent.EventType.CONTENT_SETTLED, this.handleContentSettled_)
 				.listen(this.router_.getContentHandler(), dj.ext.router.events.ContentEvent.EventType.CONTENT_CANCELED, this.handleContentCanceled_);
+};
+
+/**
+ * @private
+ * @param {dj.ext.router.events.ContentEvent} event
+ */
+dj.ext.router.transitions.AbstractTransition.prototype.handleContentLoad_ = function(event)
+{
+    this.loadContent();
 };
 
 /**
@@ -120,6 +130,14 @@ dj.ext.router.transitions.AbstractTransition.prototype.parameterUpdate = functio
  */
 dj.ext.router.transitions.AbstractTransition.prototype.cycleEnded = function()
 {
+};
+
+/**
+ * @protected
+ */
+dj.ext.router.transitions.AbstractTransition.prototype.loadContent = function()
+{
+
 };
 
 /**

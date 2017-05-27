@@ -43,7 +43,7 @@ dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
 	 * @public
 	 * @type {string}
 	 */
-	this.pushUrl = this.loadUrl.getPath();
+	this.pushUrl = goog.string.isEmptyString(this.loadUrl.getPath()) ? '/' : this.loadUrl.getPath();
 
 	/**
 	 * @public

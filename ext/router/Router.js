@@ -139,10 +139,12 @@ dj.ext.router.Router.prototype.setContentOutlet = function(element)
  */
 dj.ext.router.Router.prototype.handleRouteStart_ = function(event)
 {
-	this.contentHandler_.load(
-		event.toRoute.loadUrl.toString(),
-		event.fromRoute, event.toRoute
-	);
+    goog.async.nextTick(function(){
+    	this.contentHandler_.load(
+    		event.toRoute.loadUrl.toString(),
+    		event.fromRoute, event.toRoute
+    	);
+    }, this);
 };
 
 /**
@@ -151,9 +153,11 @@ dj.ext.router.Router.prototype.handleRouteStart_ = function(event)
  */
 dj.ext.router.Router.prototype.handleRouteEnd_ = function(event)
 {
-	this.contentHandler_.loaded().then(function(){
-		this.contentHandler_.parse(event.fromRoute, event.toRoute);
-	}, null, this);
+    goog.async.nextTick(function(){
+    	this.contentHandler_.loaded().then(function(){
+    		this.contentHandler_.parse(event.fromRoute, event.toRoute);
+    	}, null, this);
+    }, this);
 };
 
 /**

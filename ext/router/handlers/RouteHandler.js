@@ -80,7 +80,7 @@ dj.ext.router.handlers.RouteHandler.prototype.handlePopState_ = function(event)
  * @public
  * @param {dj.ext.router.models.RouteModel} route
  * @param {boolean=} optReplace
- * @param {boolean=} optPreventEvents
+ * @param {boolean=} optPreventEvents Preventing generic events (excluding the first route event)
  * @return {goog.Promise}
  */
 dj.ext.router.handlers.RouteHandler.prototype.enableRoute = function(route, optReplace, optPreventEvents)
@@ -95,9 +95,17 @@ dj.ext.router.handlers.RouteHandler.prototype.enableRoute = function(route, optR
 	}
 
 	var resolver = goog.Promise.withResolver();
+    var firstRoute = this.activeRoute_ == null;
 
 	this.activeRoute_ = route;
 	this.activeRoute_.active = true;
+
+    if (firstRoute) {
+        this.dispatchEvent(new dj.ext.router.events.RouteEvent(
+            dj.ext.router.events.RouteEvent.EventType.ROUTE_FIRST,
+            this.lastRoute_ ? this.lastRoute_ : this.activeRoute_, this.activeRoute_
+        ));
+    }
 
 	if (!optPreventEvents) {
 		this.dispatchEvent(new dj.ext.router.events.RouteEvent(
@@ -157,4 +165,13 @@ dj.ext.router.handlers.RouteHandler.prototype.fulfillActiveRoute_ = function(opt
 
 	this.lastRoute_ = this.activeRoute_;
 	this.activeRoute_.active = false;
-}
+};
+
+/**
+ * @public
+ * @return {dj.ext.router.models.RouteModel}
+ */
+dj.ext.router.handlers.RouteHandler.prototype.getActiveRoute = function()
+{
+    return this.activeRoute_;
+};

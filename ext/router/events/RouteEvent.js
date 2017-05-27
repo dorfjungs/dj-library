@@ -36,6 +36,7 @@ goog.inherits(
  * @enum {string}
  */
 dj.ext.router.events.RouteEvent.EventType = {
+    ROUTE_FIRST: 'dj.ext.router.route_first',
 	ROUTE_STARTED: 'dj.ext.router.route_started',
 	ROUTE_ENDED: 'dj.ext.router.route_ended'
 };

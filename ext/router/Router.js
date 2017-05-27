@@ -134,8 +134,8 @@ dj.ext.router.Router.prototype.setContentOutlet = function(element)
 };
 
 /**
- * @param {dj.ext.router.events.RouteEvent} event
  * @private
+ * @param {dj.ext.router.events.RouteEvent} event
  */
 dj.ext.router.Router.prototype.handleRouteStart_ = function(event)
 {
@@ -148,8 +148,8 @@ dj.ext.router.Router.prototype.handleRouteStart_ = function(event)
 };
 
 /**
- * @param {dj.ext.router.events.RouteEvent} event
  * @private
+ * @param {dj.ext.router.events.RouteEvent} event
  */
 dj.ext.router.Router.prototype.handleRouteEnd_ = function(event)
 {
@@ -192,6 +192,7 @@ dj.ext.router.Router.prototype.navigateByUrl = function(url)
 };
 
 /**
+ * @public
  * @return {dj.ext.router.handlers.RouteHandler}
  */
 dj.ext.router.Router.prototype.getRouteHandler = function()
@@ -200,11 +201,21 @@ dj.ext.router.Router.prototype.getRouteHandler = function()
 };
 
 /**
+ * @public
  * @return {dj.ext.router.handlers.ContentHandler}
  */
 dj.ext.router.Router.prototype.getContentHandler = function()
 {
 	return this.contentHandler_;
+};
+
+/**
+ * @public
+ * @return {dj.ext.router.models.RouteModel}
+ */
+dj.ext.router.Router.prototype.getActiveRoute = function()
+{
+    return this.routeHandler_.getActiveRoute();
 };
 
 /**

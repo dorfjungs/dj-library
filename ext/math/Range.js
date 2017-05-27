@@ -1,7 +1,7 @@
 goog.provide('dj.ext.math.Range');
 
 // dj
-goog.require('dj.math');
+goog.require('dj.ext.math');
 
 // goog
 goog.require('goog.math.Range');
@@ -29,5 +29,5 @@ goog.inherits(
  */
 dj.ext.math.Range.prototype.mapTo = function(value, range)
 {
-    return dj.math.mapRange(value, this.start, this.end, range.start, range.end);
+    return dj.ext.math.mapRange(value, this.start, this.end, range.start, range.end);
 };

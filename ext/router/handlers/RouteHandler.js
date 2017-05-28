@@ -36,12 +36,26 @@ dj.ext.router.handlers.RouteHandler = function()
 	 * @type {dj.ext.router.models.RouteModel}
 	 */
 	this.lastRoute_ = null;
+
+    /**
+     * @private
+     * @type {number}
+     */
+    this.collision_ = dj.ext.router.handlers.RouteHandler.RouteCollision.BLOCK;
 };
 
 goog.inherits(
 	dj.ext.router.handlers.RouteHandler,
 	goog.events.EventTarget
 );
+
+/**
+ * @enum {number}
+ */
+dj.ext.router.handlers.RouteHandler.RouteCollision = {
+    BLOCK: 1,
+    ALLOW: 2
+};
 
 /**
  * @public
@@ -78,6 +92,15 @@ dj.ext.router.handlers.RouteHandler.prototype.handlePopState_ = function(event)
 
 /**
  * @public
+ * @param {number} collision
+ */
+dj.ext.router.handlers.RouteHandler.prototype.setRouteCollision = function(collision)
+{
+    this.collision_ = collision;
+};
+
+/**
+ * @public
  * @param {dj.ext.router.models.RouteModel} route
  * @param {boolean=} optReplace
  * @param {boolean=} optPreventEvents Preventing generic events (excluding the first route event)
@@ -85,6 +108,12 @@ dj.ext.router.handlers.RouteHandler.prototype.handlePopState_ = function(event)
  */
 dj.ext.router.handlers.RouteHandler.prototype.enableRoute = function(route, optReplace, optPreventEvents)
 {
+    if (this.collision_ == dj.ext.router.handlers.RouteHandler.RouteCollision.BLOCK) {
+        if (this.activeRoute_ && this.activeRoute_.match(route.loadUrl)) {
+            return;
+        }
+    }
+
 	if (this.activeRoute_ && this.activeRoute_.active) {
 		if (optReplace) {
 			this.activeRoute_.active = false;

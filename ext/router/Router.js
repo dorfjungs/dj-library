@@ -40,11 +40,17 @@ dj.ext.router.Router = function(optRouteParameters)
 	 */
 	this.routeElements_ = new goog.structs.Map();
 
-	/**
-	 * @private
-	 * @type {goog.structs.Map<string, string>}
-	 */
-	this.routeParameters_ = new goog.structs.Map(optRouteParameters || {});
+    /**
+     * @private
+     * @type {goog.structs.Map<string, Array<goog.events.Key>>}
+     */
+    this.routeListenerKeys_ = new goog.structs.Map();
+
+    /**
+     * @private
+     * @type {goog.structs.Map<string, string>}
+     */
+    this.routeParameters_ = new goog.structs.Map(optRouteParameters || {});
 
 	/**
 	 * @private
@@ -272,10 +278,11 @@ dj.ext.router.Router.prototype.addRoutesByElements = function(elements)
 dj.ext.router.Router.prototype.cleanRoutes = function(optScope)
 {
 	this.routeElements_.forEach(function(element, id){
-		if (!goog.dom.contains(optScope || document.documentElement, element)) {
-			this.routeElements_.remove(id);
-			goog.array.remove(this.routes_, this.getRouteById(id));
-		}
+        var route = this.getRouteById(id);
+
+        this.removeRouteListener_(route);
+        this.routeElements_.remove(id);
+		goog.array.remove(this.routes_, route);
 	}, this);
 };
 
@@ -307,7 +314,6 @@ dj.ext.router.Router.prototype.addRouteByElement = function(element)
 		goog.dom.dataset.get(element, 'title') || '',
 		params ? goog.json.parse(params) : null
 	);
-	var queryData = route.loadUrl.getQueryData();
 
 	if (goog.dom.dataset.has(element, 'loadMethod')) {
 		route.loadMethod = goog.dom.dataset.get(element, 'loadMethod');
@@ -323,13 +329,8 @@ dj.ext.router.Router.prototype.addRouteByElement = function(element)
 		}
 	}
 
-	this.routeParameters_.forEach(function(value, key){
-		queryData.add(key, value);
-	});
-
 	this.routeElements_.set(route.id, element);
-	this.addRouteListener_(route);
-	this.routes_.push(route);
+    this.addRoute(route);
 };
 
 /**
@@ -380,18 +381,71 @@ dj.ext.router.Router.prototype.getRouteElement = function(route)
 /**
  * @private
  * @param {dj.ext.router.models.RouteModel} route
+ * @param {goog.events.Key} key
+ */
+dj.ext.router.Router.prototype.addRouteListenerKey_ = function(route, key)
+{
+    if (this.routeListenerKeys_.containsKey(route.id)) {
+        this.routeListenerKeys_.get(route.id).push(key);
+    }
+    else {
+        this.routeListenerKeys_.set(route.id, [key]);
+    }
+};
+
+/**
+ * @private
+ * @param {dj.ext.router.models.RouteModel} route
+ * @param {goog.events.Key} key
+ */
+dj.ext.router.Router.prototype.removeRouteListenerKey_ = function(route, key)
+{
+    if (this.routeListenerKeys_.containsKey(route.id)) {
+        goog.array.remove(this.routeListenerKeys_.get(route.id), key);
+    }
+};
+
+/**
+ * @private
+ * @param {dj.ext.router.models.RouteModel} route
  */
 dj.ext.router.Router.prototype.addRouteListener_ = function(route)
 {
-	if (this.routeElements_.containsKey(route.id)) {
+    if (this.routeElements_.containsKey(route.id)) {
 		var element = this.routeElements_.get(route.id);
+		var listenerKey = goog.events.listen(element, goog.events.EventType.CLICK,
+			this.handleRouteElementClick_.bind(this, route), false);
 
-		goog.events.listen(element, goog.events.EventType.CLICK,
-			function(route, event){
-				event.preventDefault();
-				this.navigate(route);
-			}.bind(this, route),
-			false, this
-		);
+        this.addRouteListenerKey_(route, listenerKey);
 	}
+};
+
+/**
+ * @private
+ * @param {dj.ext.router.models.RouteModel} route
+ */
+dj.ext.router.Router.prototype.removeRouteListener_ = function(route)
+{
+    if (this.routeElements_.containsKey(route.id)) {
+        var element = this.routeElements_.get(route.id);
+        var listenerKeys = this.routeListenerKeys_.get(route.id);
+
+        if (listenerKeys) {
+            for (var i = 0, len = listenerKeys.length; i < len; i++) {
+                goog.events.unlistenByKey(listenerKeys[i]);
+                this.removeRouteListenerKey_(route, listenerKeys[i]);
+            }
+        }
+    }
+};
+
+/**
+ * @private
+ * @param {dj.ext.router.models.RouteModel} route
+ * @param {goog.events.BrowserEvent} event
+ */
+dj.ext.router.Router.prototype.handleRouteElementClick_ = function(route, event)
+{
+    event.preventDefault();
+    this.navigate(route);
 };

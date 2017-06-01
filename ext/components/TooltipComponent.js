@@ -73,6 +73,7 @@ dj.ext.components.TooltipComponent.prototype.ready = function()
 	return this.baseReady(dj.ext.components.TooltipComponent, function(resolve, reject){
 		this.labelElement_ = this.getElementByClass('label');
 		this.contentElement_ = this.getElementByClass('content');
+		this.position_ = this.parsePosition_(this.getConfig('position'));
 
 		if ( ! this.labelElement_) {
 			throw new Error('Please provide a label element');
@@ -110,6 +111,33 @@ dj.ext.components.TooltipComponent.prototype.init = function()
 };
 
 /**
+ * @private
+ * @param {string} pos
+ * @return {number}
+ */
+dj.ext.components.TooltipComponent.prototype.parsePosition_ = function(pos)
+{
+	var position = dj.ext.components.TooltipComponent.Position.TOP;
+
+	switch (pos) {
+		case 'right':
+			position = dj.ext.components.TooltipComponent.Position.RIGHT;
+			break;
+
+		case 'left':
+			position = dj.ext.components.TooltipComponent.Position.LEFT;
+			break;
+
+		case 'bottom':
+			position = dj.ext.components.TooltipComponent.Position.BOTTOM;
+			break;
+	}
+
+	return position;
+};
+
+/**
+ * @private
  * @param {goog.events.BrowserEvent} event
  */
 dj.ext.components.TooltipComponent.prototype.handleDocumentTouchEnd_ = function(event)

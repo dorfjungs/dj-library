@@ -8,6 +8,10 @@ goog.require('goog.style');
 goog.require('goog.dom.classlist');
 goog.require('goog.async.nextTick');
 goog.require('goog.dom.dataset');
+goog.require('goog.ui.Popup');
+goog.require('goog.positioning.Corner');
+goog.require('goog.positioning.Overflow');
+goog.require('goog.positioning.AnchoredPosition');
 
 // dj
 goog.require('dj.sys.components.AbstractComponent');
@@ -87,6 +91,18 @@ dj.ext.components.DropdownComponent = function()
      * @type {Array<string>}
      */
     this.optionClasses_ = [];
+
+    /**
+     * @private
+     * @type {boolean}
+     */
+    this.externalOptionWrapper_ = false;
+
+    /**
+     * @private
+     * @type {goog.ui.Popup}
+     */
+    this.wrapperPopup_ = null;
 };
 
 goog.inherits(
@@ -107,11 +123,16 @@ dj.ext.components.DropdownComponent.prototype.ready = function()
 
         var provideSelect = goog.dom.dataset.get(this.getElement(), 'provideSelect');
         var optionClasses = goog.dom.dataset.get(this.getElement(), 'optionClass');
+        var optionWrapperClasses = goog.dom.dataset.get(this.getElement(), 'optionWrapperClasses');
+
+        if (!this.optionWrapper_) {
+        	this.optionWrapper_ = this.createOptionWrapper_(optionWrapperClasses);
+        	this.externalOptionWrapper_ = true;
+        }
 
         if (provideSelect) {
             this.selectActive_ = true;
-
-            this.createSelect_(provideSelect, options);
+            this.createSelect_(provideSelect, options, this.queryElement('select'));
         }
 
         if (optionClasses) {
@@ -139,6 +160,8 @@ dj.ext.components.DropdownComponent.prototype.ready = function()
 dj.ext.components.DropdownComponent.prototype.init = function()
 {
 	return this.baseInit(dj.ext.components.DropdownComponent, function(resolve, reject){
+		this.listenResize();
+
 		// Listen for active click
 		goog.array.forEach(this.triggers_, function(trigger){
 	        this.getHandler().listen(trigger, goog.events.EventType.CLICK,
@@ -157,12 +180,63 @@ dj.ext.components.DropdownComponent.prototype.init = function()
 			this.activateOption_(this.options_.get(name));
 		}
 
+		if (this.wrapperPopup_) {
+			this.handler.listen(this.wrapperPopup_, goog.ui.PopupBase.EventType.HIDE,
+				this.handleWrapperPopupHide_);
+		}
+
 		// Update states
 		goog.async.nextTick(function(){
 			this.updateStates_();
+
+			if (this.externalOptionWrapper_) {
+				this.updateWrapperSize_();
+			}
+
 			resolve();
 		}, this);
 	});
+};
+
+/** @inheritDoc */
+dj.ext.components.DropdownComponent.prototype.handleResize = function()
+{
+	dj.ext.components.DropdownComponent.base(this, 'handleResize');
+
+	if (this.externalOptionWrapper_) {
+		this.updateWrapperSize_();
+	}
+
+	if (this.wrapperPopup_) {
+		this.wrapperPopup_.reposition();
+	}
+};
+
+/**
+ * @private
+ */
+dj.ext.components.DropdownComponent.prototype.handleWrapperPopupHide_ = function()
+{
+	this.enableTriggers_(false);
+};
+
+/**
+ * @private
+ * @param {string=} optClasses
+ * @return {Element}
+ */
+dj.ext.components.DropdownComponent.prototype.createOptionWrapper_ = function(optClasses)
+{
+	var wrapper = goog.dom.createDom('div', 'dj-dropdown-option-wrapper ' + (optClasses || ''));
+	goog.dom.appendChild(document.body, wrapper);
+
+	this.wrapperPopup_ = new goog.ui.Popup(wrapper, new goog.positioning.AnchoredPosition(
+		this.activeElement_, goog.positioning.Corner.BOTTOM_START,
+          (goog.positioning.Overflow.ADJUST_X_EXCEPT_OFFSCREEN |
+           goog.positioning.Overflow.ADJUST_Y_EXCEPT_OFFSCREEN)
+	));
+
+	return wrapper;
 };
 
 /**
@@ -175,6 +249,16 @@ dj.ext.components.DropdownComponent.prototype.updateStates_ = function()
 	this.disabled_ = this.options_.isEmpty() || ((disabled && disabled == 'true') ? true : false);
 
 	goog.dom.classlist.enable(this.getElement(), 'disabled', this.disabled_);
+};
+
+/**
+ * @private
+ */
+dj.ext.components.DropdownComponent.prototype.updateWrapperSize_ = function()
+{
+	var activeItemSize = goog.style.getSize(this.activeElement_);
+
+	goog.style.setWidth(this.optionWrapper_, activeItemSize.width);
 };
 
 /**
@@ -206,6 +290,12 @@ dj.ext.components.DropdownComponent.prototype.handleActiveClick_ = function(even
  */
 dj.ext.components.DropdownComponent.prototype.toggleActiveState_ = function()
 {
+	var enabled = goog.dom.classlist.toggle(this.optionWrapper_, 'active');
+
+	if (this.wrapperPopup_) {
+		this.wrapperPopup_.setVisible(enabled);
+	}
+
 	return goog.dom.classlist.toggle(this.getElement(), 'active');
 };
 
@@ -216,6 +306,12 @@ dj.ext.components.DropdownComponent.prototype.toggleActiveState_ = function()
 dj.ext.components.DropdownComponent.prototype.enableActiveState_ = function(enabled)
 {
 	goog.dom.classlist.enable(this.getElement(), 'active', this.active_ = enabled);
+	goog.dom.classlist.enable(this.optionWrapper_, 'active', enabled);
+
+	if (this.wrapperPopup_) {
+		this.wrapperPopup_.setVisible(enabled);
+	}
+
     this.enableTriggers_(enabled);
 };
 
@@ -307,9 +403,10 @@ dj.ext.components.DropdownComponent.prototype.setLabel_ = function(label)
 /**
  * @param {string} name
  * @param {Object} options
+ * @param {Element=} optElement
  * @private
  */
-dj.ext.components.DropdownComponent.prototype.createSelect_ = function(name, options)
+dj.ext.components.DropdownComponent.prototype.createSelect_ = function(name, options, optElement)
 {
     var domHelper = goog.dom.getDomHelper();
     var optionElements = [];
@@ -318,7 +415,17 @@ dj.ext.components.DropdownComponent.prototype.createSelect_ = function(name, opt
         optionElements.push(domHelper.createDom('option', {'value': value}, name));
     });
 
-    this.selectInput_ = domHelper.createDom('select', {'name': name}, optionElements);
+    if (optElement) {
+    	this.selectInput_ = optElement;
+    	this.selectInput_.setAttribute('name', name);
+
+    	for (var i = 0, len = optionElements.length; i < len; i++) {
+    		goog.dom.appendChild(this.selectInput_, optionElements[i]);
+    	}
+    }
+    else {
+    	this.selectInput_ = domHelper.createDom('select', {'name': name}, optionElements);
+    }
     goog.style.setStyle(this.selectInput_, 'display', 'none');
 
     goog.dom.appendChild(this.getElement(), this.selectInput_);

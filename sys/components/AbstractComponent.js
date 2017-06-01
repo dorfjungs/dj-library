@@ -203,7 +203,9 @@ dj.sys.components.AbstractComponent.prototype.queryComponent = function(selector
 	if (typeof selector == 'function') {
 		this.manager.getComponents().forEach(function(component){
 			if (component instanceof /** @type {!Object} */ (selector) && !foundComponent) {
-				foundComponent = component;
+				if (goog.dom.contains(rootElement, component.getElement())) {
+					foundComponent = component;
+				}
 			}
 		});
 	}
@@ -237,7 +239,9 @@ dj.sys.components.AbstractComponent.prototype.queryComponents = function(selecto
 	if (typeof selector == 'function') {
 		this.manager.getComponents().forEach(function(component){
 			if (component instanceof /** @type {!Object} */ (selector)) {
-				foundComponents.push(component);
+				if (goog.dom.contains(rootElement, component.getElement())) {
+					foundComponents.push(component);
+				}
 			}
 		});
 	}

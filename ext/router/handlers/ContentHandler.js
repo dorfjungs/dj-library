@@ -150,6 +150,15 @@ dj.ext.router.handlers.ContentHandler.prototype.setOutletElement = function(elem
 };
 
 /**
+ * @public
+ * @return {Element}
+ */
+dj.ext.router.handlers.ContentHandler.prototype.getOutletElement = function()
+{
+    return this.outletElement_;
+};
+
+/**
  * @private
  * @param {dj.ext.router.models.RouteModel} fromRoute
  * @param {dj.ext.router.models.RouteModel} toRoute

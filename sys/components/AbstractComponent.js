@@ -77,6 +77,13 @@ dj.sys.components.AbstractComponent.prototype.init = function()
 /**
  * @public
  */
+dj.sys.components.AbstractComponent.prototype.prepared = function()
+{
+};
+
+/**
+ * @public
+ */
 dj.sys.components.AbstractComponent.prototype.dispose = function()
 {
 	this.handler.removeAll();
@@ -390,6 +397,24 @@ dj.sys.components.AbstractComponent.prototype.baseCall_ = function(name, ctor, c
 	}, null, this);
 
 	return resolver.promise;
+};
+
+/**
+ * @public
+ * @param {boolean} willDispose
+ */
+dj.sys.components.AbstractComponent.prototype.setWillDispose = function(willDispose)
+{
+    this.model.willDispose = willDispose;
+};
+
+/**
+ * @public
+ * @return {boolean}
+ */
+dj.sys.components.AbstractComponent.prototype.willDispose = function()
+{
+    return this.model.willDispose;
 };
 
 /**

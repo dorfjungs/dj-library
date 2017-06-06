@@ -65,7 +65,7 @@ dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
 };
 
 /**
- * @enum {string}
+ * @enum {number}
  */
 dj.ext.router.models.RouteModel.RouteMethod = {
 	DEFAULT: 1,

@@ -4,7 +4,7 @@ goog.provide('dj.ext.router.Router');
 goog.require('goog.dom.dataset');
 goog.require('goog.events.EventHandler');
 
-// dj.ext
+// dj
 goog.require('dj.ext.router.handlers.RouteHandler');
 goog.require('dj.ext.router.handlers.ContentHandler');
 goog.require('dj.ext.router.models.RouteModel');
@@ -132,11 +132,30 @@ dj.ext.router.Router.prototype.getTransition = function(ctor)
 
 /**
  * @public
+ * @param {string} url
+ * @param {string} title
+ */
+dj.ext.router.Router.prototype.registerTitle = function(url, title)
+{
+    this.routeHandler_.registerTitle(url, title);
+};
+
+/**
+ * @public
  * @param {Element} element
  */
 dj.ext.router.Router.prototype.setContentOutlet = function(element)
 {
 	this.contentHandler_.setOutletElement(element);
+};
+
+/**
+ * @public
+ * @return {Element}
+ */
+dj.ext.router.Router.prototype.getContentOutlet = function()
+{
+    return this.contentHandler_.getOutletElement();
 };
 
 /**
@@ -316,7 +335,7 @@ dj.ext.router.Router.prototype.addRouteByElement = function(element)
 	);
 
 	if (goog.dom.dataset.has(element, 'loadMethod')) {
-		route.loadMethod = goog.dom.dataset.get(element, 'loadMethod');
+		route.loadMethod = /** @type {string} */ (goog.dom.dataset.get(element, 'loadMethod'));
 	}
 
 	if (goog.dom.dataset.has(element, 'routeMethod')) {

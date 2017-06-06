@@ -81,6 +81,12 @@ dj.sys.models.ComponentModel = function(id, name, element, ctor, optStaticConfig
 	 */
 	this.dynamicConfig = {};
 
+    /**
+     * @public
+     * @type {boolean}
+     */
+    this.willDispose = false;
+
 	/**
 	 * @public
 	 * @type {number}

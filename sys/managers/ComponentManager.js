@@ -76,12 +76,7 @@ dj.sys.managers.ComponentManager = function()
 
 	/**
 	 * @private
-	 * @type {goog.structs.Map<string, {
-	 *    name: string,
-	 *    class: Function,
-	 *    config: Array<dj.sys.models.config.AbstractConfigModel>,
-	 *    rules: number
-	 * }>}
+	 * @type {goog.structs.Map<string, dj.sys.managers.ComponentManager.ComponentConfig>}
 	 */
 	this.componentConfig_ = new goog.structs.Map();
 
@@ -108,6 +103,16 @@ goog.inherits(
 	dj.sys.managers.ComponentManager,
 	goog.events.EventTarget
 );
+
+/**
+ * @typedef {{
+ *    name: string,
+ *    class: Function,
+ *    config: Array<dj.sys.models.config.AbstractConfigModel>,
+ *    rules: number
+ * }}
+ */
+dj.sys.managers.ComponentManager.ComponentConfig;
 
 /**
  * @type {number}
@@ -165,11 +170,12 @@ dj.sys.managers.ComponentManager.prototype.init = function()
 /**
  * @public
  * @param {Array<Function>=} optClasses
+ * @param {Element=} optScopeElement
  * @return {goog.Promise}
  */
-dj.sys.managers.ComponentManager.prototype.update = function(optClasses)
+dj.sys.managers.ComponentManager.prototype.update = function(optClasses, optScopeElement)
 {
-	var rootElement = this.getRootElement();
+	var rootElement = optScopeElement || this.getRootElement();
 	var componentModels = [];
 
 	// Remove old components
@@ -186,9 +192,7 @@ dj.sys.managers.ComponentManager.prototype.update = function(optClasses)
 			return;
 		}
 
-		var elements = rootElement.querySelectorAll(
-			'[' + this.attributeName_ + '="' + name + '"]:not([' + this.attributeId_ + '])'
-		);
+		var elements = this.queryComponentElements_(rootElement, name);
 
 		// Creating the component models
 		goog.array.forEach(elements, function(element){
@@ -235,32 +239,70 @@ dj.sys.managers.ComponentManager.prototype.update = function(optClasses)
 
 /**
  * @public
+ * @param {Array<Element|Function>} selector
+ * @param {Element=} optScope
+ * @return {Array<dj.sys.components.AbstractComponent>}
+ */
+dj.sys.managers.ComponentManager.prototype.prepare = function(selector, optScope)
+{
+    var components = [];
+    var rootElement = optScope || this.getRootElement();
+
+    goog.asserts.assert(goog.isArray(selector), "Prepare selector needs to be an array");
+
+    // Collect components
+    for (var i = 0, len = selector.length; i < len; i++) {
+        if (typeof selector[i] == 'function') {
+            var config = this.getConfigByClass_(selector[i]);
+            var elements = this.queryComponentElements_(rootElement, config.name);
+
+            for (var i = 0, len = elements.length; i < len; i++) {
+                components.push(this.prepareElement_(elements[i]));
+            }
+        }
+        else {
+            if (goog.dom.contains(rootElement, selector[i])) {
+                components.push(this.prepareElement_(selector[i]));
+            }
+        }
+    }
+
+    // Notify components, that they were prepared
+    for (var i = 0, len = components.length; i < len; i++) {
+        components[i].prepared();
+    }
+
+    return components;
+};
+
+/**
+ * @private
  * @param {Element} element
  * @return {dj.sys.components.AbstractComponent}
  */
-dj.sys.managers.ComponentManager.prototype.prepare = function(element)
+dj.sys.managers.ComponentManager.prototype.prepareElement_ = function(element)
 {
-	var name = element.getAttribute(this.attributeName_);
-	var config = this.componentConfig_.get(name);
+    var name = element.getAttribute(this.attributeName_);
+    var config = this.componentConfig_.get(name);
 
-	goog.asserts.assert(config, 'Config for component "' + name + '" not found');
+    goog.asserts.assert(config, 'Config for component "' + name + '" not found');
 
-	var model = this.parseComponentElement_(name, element);
+    var model = this.parseComponentElement_(name, element);
 
-	element.setAttribute(this.attributeId_, model.id);
+    element.setAttribute(this.attributeId_, model.id);
 
-	this.componentModels_.set(model.id, model);
-	this.componentModels_.forEach(function(model){
-		this.setParentModel_(model);
-	}, this);
+    this.componentModels_.set(model.id, model);
+    this.componentModels_.forEach(function(model){
+        this.setParentModel_(model);
+    }, this);
 
-	var component = this.instatiateComponentByModel_(model);
+    var component = this.instatiateComponentByModel_(model);
 
-	this.components_.set(model.id, component);
-	this.componentStack_.push(component);
-	this.lastComponentStack_.push(component);
+    this.components_.set(model.id, component);
+    this.componentStack_.push(component);
+    this.lastComponentStack_.push(component);
 
-	return component;
+    return component;
 };
 
 /**
@@ -353,6 +395,19 @@ dj.sys.managers.ComponentManager.prototype.loadComponentStack_ = function(method
 	}
 
 	return goog.Promise.resolve();
+};
+
+/**
+ * @private
+ * @param {Element} element
+ * @param {string} name
+ * @return {Array<Element>}
+ */
+dj.sys.managers.ComponentManager.prototype.queryComponentElements_ = function(element, name)
+{
+    return /** @type {Array<Element>} */ (goog.array.slice(element.querySelectorAll(
+        '[' + this.attributeName_ + '="' + name + '"]:not([' + this.attributeId_ + '])'
+    ), 0));
 };
 
 /**
@@ -531,6 +586,24 @@ dj.sys.managers.ComponentManager.prototype.parseComponentConfigParsers_ = functi
 	}
 
 	return config;
+};
+
+/**
+ * @private
+ * @param {Function} ctor
+ * @return {dj.sys.managers.ComponentManager.ComponentConfig|null}
+ */
+dj.sys.managers.ComponentManager.prototype.getConfigByClass_ = function(ctor)
+{
+    var configs = this.componentConfig_.getValues();
+
+    for (var i = 0, len = configs.length; i < len; i++) {
+        if (configs[i].class == ctor) {
+            return configs[i];
+        }
+    }
+
+    return null;
 };
 
 /**

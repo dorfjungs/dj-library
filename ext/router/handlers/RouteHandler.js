@@ -10,6 +10,7 @@ goog.require('goog.events.EventHandler');
 // dj.ext
 goog.require('dj.ext.router.models.RouteModel');
 goog.require('dj.ext.router.events.RouteEvent');
+goog.require('dj.ext.router.registry.TitleRegistry');
 
 /**
  * @constructor
@@ -24,6 +25,12 @@ dj.ext.router.handlers.RouteHandler = function()
 	 * @type {goog.events.EventHandler}
 	 */
 	this.handler_ = new goog.events.EventHandler(this);
+
+    /**
+     * @private
+     * @type {dj.ext.router.registry.TitleRegistry}
+     */
+    this.titles_ = new dj.ext.router.registry.TitleRegistry();
 
 	/**
 	 * @private
@@ -78,6 +85,16 @@ dj.ext.router.handlers.RouteHandler.prototype.deinit = function()
 };
 
 /**
+ * @public
+ * @param {string} url
+ * @param {string} title
+ */
+dj.ext.router.handlers.RouteHandler.prototype.registerTitle = function(url, title)
+{
+    this.titles_.register(url, title);
+};
+
+/**
  * @param {goog.events.BrowserEvent} event
  * @private
  */
@@ -110,7 +127,7 @@ dj.ext.router.handlers.RouteHandler.prototype.enableRoute = function(route, optR
 {
     if (this.collision_ == dj.ext.router.handlers.RouteHandler.RouteCollision.BLOCK) {
         if (this.activeRoute_ && this.activeRoute_.match(route.loadUrl)) {
-            return;
+            return goog.Promise.resolve();
         }
     }
 
@@ -178,12 +195,14 @@ dj.ext.router.handlers.RouteHandler.prototype.fulfillActiveRoute_ = function(opt
 				'activeRoute': serializedRoute
 			}, '', this.activeRoute_.pushUrl);
 		}
-
 	}
 
-	if (!goog.string.isEmpty(this.activeRoute_.title)) {
+	if (!goog.string.isEmptyOrWhitespace(this.activeRoute_.title)) {
 		document.title = this.activeRoute_.title;
 	}
+    else if (this.titles_.match(this.activeRoute_)) {
+        document.title = this.titles_.getTitle(this.activeRoute_);
+    }
 
 	if (!optPreventEvents) {
 		this.dispatchEvent(new dj.ext.router.events.RouteEvent(

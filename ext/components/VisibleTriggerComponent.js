@@ -295,6 +295,15 @@ dj.ext.components.VisibleTriggerComponent.prototype.setVisibleOffset = function(
 };
 
 /**
+ * @public
+ * @param {number} mode
+ */
+dj.ext.components.VisibleTriggerComponent.prototype.addResetMode = function(mode)
+{
+    this.resetMode_ |= mode;
+};
+
+/**
  * @protected
  * @param {boolean} visible
  */

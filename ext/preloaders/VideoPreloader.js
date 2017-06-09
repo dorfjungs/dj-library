@@ -20,8 +20,17 @@ dj.ext.preloaders.VideoPreloader = function(optVideoElements)
 dj.ext.preloaders.VideoPreloader.prototype.addVideoElements = function(elements)
 {
 	for (var i = 0, len = elements.length; i < len; i++) {
-		this.videoElements_.push(elements[i]);
+		this.addVideoElement(elements[i]);
 	}
+};
+
+/**
+ * @public
+ * @param {HTMLVideoElement} element
+ */
+dj.ext.preloaders.VideoPreloader.prototype.addVideoElement = function(element)
+{
+    this.videoElements_.push(element);
 };
 
 /**

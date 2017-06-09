@@ -256,8 +256,8 @@ dj.sys.managers.ComponentManager.prototype.prepare = function(selector, optScope
             var config = this.getConfigByClass_(selector[i]);
             var elements = this.queryComponentElements_(rootElement, config.name);
 
-            for (var i = 0, len = elements.length; i < len; i++) {
-                components.push(this.prepareElement_(elements[i]));
+            for (var ii = 0, len1 = elements.length; ii < len1; ii++) {
+                components.push(this.prepareElement_(elements[ii]));
             }
         }
         else {

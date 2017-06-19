@@ -35,6 +35,12 @@ dj.ext.router.transitions.AbstractTransition = function(router, namespace)
 	 * @type {goog.structs.Map<string, *>}
 	 */
 	this.cycleParameters_ = new goog.structs.Map();
+
+    /**
+     * @private
+     * @type {boolean}
+     */
+    this.disabled_ = false;
 };
 
 /**
@@ -51,12 +57,30 @@ dj.ext.router.transitions.AbstractTransition.prototype.init = function()
 };
 
 /**
+ * @public
+ */
+dj.ext.router.transitions.AbstractTransition.prototype.disable = function()
+{
+    this.disabled_ = true;
+};
+
+/**
+ * @public
+ */
+dj.ext.router.transitions.AbstractTransition.prototype.enable = function()
+{
+    this.disabled_ = false;
+};
+
+/**
  * @private
  * @param {dj.ext.router.events.ContentEvent} event
  */
 dj.ext.router.transitions.AbstractTransition.prototype.handleContentLoad_ = function(event)
 {
-    this.loadContent();
+    if ( ! this.disabled_) {
+        this.loadContent();
+    }
 };
 
 /**
@@ -65,7 +89,9 @@ dj.ext.router.transitions.AbstractTransition.prototype.handleContentLoad_ = func
  */
 dj.ext.router.transitions.AbstractTransition.prototype.handleContentLoaded_ = function(event)
 {
-	event.parser.addInjectTask(this.namespace_, this.injectContent.bind(this));
+    if ( ! this.disabled_) {
+	   event.parser.addInjectTask(this.namespace_, this.injectContent.bind(this));
+    }
 };
 
 /**
@@ -74,7 +100,9 @@ dj.ext.router.transitions.AbstractTransition.prototype.handleContentLoaded_ = fu
  */
 dj.ext.router.transitions.AbstractTransition.prototype.handleContentReady_ = function(event)
 {
-	event.parser.addReplaceTask(this.namespace_, this.replaceContent.bind(this));
+    if ( ! this.disabled_) {
+	   event.parser.addReplaceTask(this.namespace_, this.replaceContent.bind(this));
+    }
 };
 
 /**
@@ -83,7 +111,9 @@ dj.ext.router.transitions.AbstractTransition.prototype.handleContentReady_ = fun
  */
 dj.ext.router.transitions.AbstractTransition.prototype.handleContentParsed_ = function(event)
 {
-	event.parser.addSettleTask(this.namespace_, this.settleContent.bind(this));
+    if ( ! this.disabled_) {
+	   event.parser.addSettleTask(this.namespace_, this.settleContent.bind(this));
+    }
 };
 
 /**
@@ -92,8 +122,10 @@ dj.ext.router.transitions.AbstractTransition.prototype.handleContentParsed_ = fu
  */
 dj.ext.router.transitions.AbstractTransition.prototype.handleContentSettled_ = function(event)
 {
-	this.cycleParameters_.clear();
-	this.cycleEnded();
+    if ( ! this.disabled_) {
+    	this.cycleParameters_.clear();
+    	this.cycleEnded();
+    }
 };
 
 /**
@@ -102,8 +134,10 @@ dj.ext.router.transitions.AbstractTransition.prototype.handleContentSettled_ = f
  */
 dj.ext.router.transitions.AbstractTransition.prototype.handleContentCanceled_ = function(event)
 {
-	this.cycleParameters_.clear();
-	this.cycleEnded();
+    if ( ! this.disabled_) {
+    	this.cycleParameters_.clear();
+    	this.cycleEnded();
+    }
 };
 
 /**

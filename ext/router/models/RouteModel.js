@@ -21,6 +21,12 @@ dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
 	 */
 	this.id = optId || goog.ui.IdGenerator.getInstance().getNextUniqueId();
 
+    /**
+     * @public
+     * @type {dj.ext.router.models.RouteModel}
+     */
+    this.parent = null;
+
 	/**
 	 * @public
 	 * @type {goog.Uri}
@@ -68,18 +74,22 @@ dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
  * @enum {number}
  */
 dj.ext.router.models.RouteModel.RouteMethod = {
-	DEFAULT: 1,
-	INTERNAL: 2
+    DEFAULT: 1,
+    INTERNAL: 2,
+    EXTERNAL: 3
 };
 
 /**
  * @public
- * @param {string|goog.Uri} url
+ * @param {string|goog.Uri|dj.ext.router.models.RouteModel} url
  * @return {boolean}
  */
 dj.ext.router.models.RouteModel.prototype.match = function(url)
 {
-	if (!(url instanceof goog.Uri)) {
+    if (url instanceof dj.ext.router.models.RouteModel) {
+        url = url.loadUrl;
+    }
+    else if (goog.typeOf(url) == 'string') {
 		url = new goog.Uri(url);
 	}
 
@@ -96,6 +106,7 @@ dj.ext.router.models.RouteModel.prototype.clone = function()
 	var route = new dj.ext.router.models.RouteModel(
 		this.loadUrl.toString(), this.title, this.parameters, this.id);
 
+    route.parent = this.parent;
 	route.loadMethod = this.loadMethod;
 	route.routeMethod = this.routeMethod;
 	route.active = this.active;
@@ -114,10 +125,10 @@ dj.ext.router.models.RouteModel.parse = function(string)
 		obj['url'], obj['title'], obj['parameters'], obj['id']
 	);
 
+    route.parent = obj['parent'] ? dj.ext.router.models.RouteModel.parse(obj['parent']) : null;
 	route.loadMethod = obj['loadMethod'];
 	route.routeMethod = obj['routeMethod'];
 	route.active = obj['active'];
-
 
 	return route;
 };
@@ -131,6 +142,7 @@ dj.ext.router.models.RouteModel.serialize = function(route)
 	return goog.json.serialize({
 		'id': route.id,
 		'url': route.loadUrl.toString(),
+        'parent': route.parent ? dj.ext.router.models.RouteModel.serialize(route.parent) : null,
 		'title': route.title,
 		'loadMethod': route.loadMethod,
 		'routeMethod': route.routeMethod,

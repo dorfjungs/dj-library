@@ -283,6 +283,24 @@ dj.ext.components.VisibleTriggerComponent.prototype.wasVisible = function()
 };
 
 /**
+ * @public
+ * @return {goog.math.Coordinate}
+ */
+dj.ext.components.VisibleTriggerComponent.prototype.getVisibleOffset = function()
+{
+    return this.elementOffset_;
+};
+
+/**
+ * @public
+ * @return {goog.math.Size}
+ */
+dj.ext.components.VisibleTriggerComponent.prototype.getVisibleSize = function()
+{
+    return this.elementSize_;
+};
+
+/**
  * @param {number} x
  * @param {number} y
  */

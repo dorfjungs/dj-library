@@ -103,7 +103,7 @@ dj.ext.router.handlers.RouteHandler.prototype.handlePopState_ = function(event)
 	if (event.state && event.state.hasOwnProperty('activeRoute')) {
 		var activeRoute = dj.ext.router.models.RouteModel.parse(event.state['activeRoute']);
 
-		this.enableRoute(activeRoute, true);
+		this.enableRoute(activeRoute, true, false, dj.ext.router.events.RouteEvent.TriggerType.USER);
 	}
 };
 
@@ -121,12 +121,15 @@ dj.ext.router.handlers.RouteHandler.prototype.setRouteCollision = function(colli
  * @param {dj.ext.router.models.RouteModel} route
  * @param {boolean=} optReplace
  * @param {boolean=} optPreventEvents Preventing generic events (excluding the first route event)
+ * @param {number=} optTriggerType
  * @return {goog.Promise}
  */
-dj.ext.router.handlers.RouteHandler.prototype.enableRoute = function(route, optReplace, optPreventEvents)
+dj.ext.router.handlers.RouteHandler.prototype.enableRoute = function(route, optReplace, optPreventEvents, optTriggerType)
 {
     if (this.collision_ == dj.ext.router.handlers.RouteHandler.RouteCollision.BLOCK) {
-        if (this.activeRoute_ && this.activeRoute_.match(route.loadUrl)) {
+        if (this.activeRoute_ &&
+            this.activeRoute_.match(route.loadUrl) &&
+            this.activeRoute_.routeMethod == route.routeMethod) {
             return goog.Promise.resolve();
         }
     }
@@ -149,14 +152,16 @@ dj.ext.router.handlers.RouteHandler.prototype.enableRoute = function(route, optR
     if (firstRoute) {
         this.dispatchEvent(new dj.ext.router.events.RouteEvent(
             dj.ext.router.events.RouteEvent.EventType.ROUTE_FIRST,
-            this.lastRoute_ ? this.lastRoute_ : this.activeRoute_, this.activeRoute_
+            this.lastRoute_ ? this.lastRoute_ : this.activeRoute_, this.activeRoute_,
+            optTriggerType || dj.ext.router.events.RouteEvent.TriggerType.PROGRAMMATICALLY
         ));
     }
 
 	if (!optPreventEvents) {
 		this.dispatchEvent(new dj.ext.router.events.RouteEvent(
 			dj.ext.router.events.RouteEvent.EventType.ROUTE_STARTED,
-			this.lastRoute_ ? this.lastRoute_ : this.activeRoute_, this.activeRoute_
+			this.lastRoute_ ? this.lastRoute_ : this.activeRoute_, this.activeRoute_,
+            optTriggerType || dj.ext.router.events.RouteEvent.TriggerType.PROGRAMMATICALLY
 		));
 	}
 
@@ -184,7 +189,8 @@ dj.ext.router.handlers.RouteHandler.prototype.fulfillActiveRoute_ = function(opt
 
 	var serializedRoute = dj.ext.router.models.RouteModel.serialize(this.activeRoute_);
 
-	if (this.activeRoute_.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.DEFAULT) {
+	if (this.activeRoute_.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.DEFAULT ||
+        this.activeRoute_.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.EXTERNAL) {
 		if (optReplace) {
 			window.history.replaceState({
 				'activeRoute': serializedRoute
@@ -202,6 +208,11 @@ dj.ext.router.handlers.RouteHandler.prototype.fulfillActiveRoute_ = function(opt
 	}
     else if (this.titles_.match(this.activeRoute_)) {
         document.title = this.titles_.getTitle(this.activeRoute_);
+    }
+    else if (this.activeRoute_.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.EXTERNAL) {
+        if (this.titles_.match(this.activeRoute_.parent)) {
+            document.title = this.titles_.getTitle(this.activeRoute_.parent);
+        }
     }
 
 	if (!optPreventEvents) {

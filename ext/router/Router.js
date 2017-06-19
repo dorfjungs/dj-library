@@ -52,17 +52,23 @@ dj.ext.router.Router = function(optRouteParameters)
      */
     this.routeParameters_ = new goog.structs.Map(optRouteParameters || {});
 
-	/**
-	 * @private
-	 * @type {Array<dj.ext.router.transitions.AbstractTransition>}
-	 */
-	this.transitions_ = [];
+    /**
+     * @private
+     * @type {dj.ext.router.models.RouteModel}
+     */
+    this.lastContentRoute_ = null;
 
-	/**
-	 * @private
-	 * @type {Array<dj.ext.router.models.RouteModel>}
-	 */
-	this.routes_ = [];
+    /**
+     * @private
+     * @type {Array<dj.ext.router.transitions.AbstractTransition>}
+     */
+    this.transitions_ = [];
+
+    /**
+     * @private
+     * @type {Array<dj.ext.router.models.RouteModel>}
+     */
+    this.routes_ = [];
 };
 
 /**
@@ -159,17 +165,58 @@ dj.ext.router.Router.prototype.getContentOutlet = function()
 };
 
 /**
+ * @public
+ * @param {dj.ext.router.events.RouteEvent} fromRoute
+ * @param {dj.ext.router.events.RouteEvent} toRoute
+ * @return {boolean}
+ */
+dj.ext.router.Router.prototype.isExternal = function(fromRoute, toRoute)
+{
+    if (toRoute.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.EXTERNAL && !toRoute.parent) {
+        throw new Error('The external route needs a parent route');
+    }
+
+    if (fromRoute.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.EXTERNAL && !fromRoute.parent) {
+        throw new Error('The external route needs a parent route');
+    }
+
+    if (fromRoute.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.EXTERNAL &&
+        toRoute.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.EXTERNAL) {
+        return true;
+    }
+
+    if (fromRoute.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.EXTERNAL ||
+        toRoute.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.EXTERNAL) {
+        if (toRoute.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.EXTERNAL) {
+            if (fromRoute.match(toRoute.parent)) {
+                return true;
+            }
+        }
+
+        if (fromRoute.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.EXTERNAL) {
+            if (toRoute.match(fromRoute.parent)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+};
+
+/**
  * @private
  * @param {dj.ext.router.events.RouteEvent} event
  */
 dj.ext.router.Router.prototype.handleRouteStart_ = function(event)
 {
-    goog.async.nextTick(function(){
-    	this.contentHandler_.load(
-    		event.toRoute.loadUrl.toString(),
-    		event.fromRoute, event.toRoute
-    	);
-    }, this);
+    if ( ! this.isExternal(event.fromRoute, event.toRoute)) {
+        goog.async.nextTick(function(){
+            this.contentHandler_.load(
+                event.toRoute.loadUrl.toString(),
+                event.fromRoute, event.toRoute
+            );
+        }, this);
+    }
 };
 
 /**
@@ -178,11 +225,16 @@ dj.ext.router.Router.prototype.handleRouteStart_ = function(event)
  */
 dj.ext.router.Router.prototype.handleRouteEnd_ = function(event)
 {
-    goog.async.nextTick(function(){
-    	this.contentHandler_.loaded().then(function(){
-    		this.contentHandler_.parse(event.fromRoute, event.toRoute);
-    	}, null, this);
-    }, this);
+    if ( ! this.isExternal(event.fromRoute, event.toRoute)) {
+        goog.async.nextTick(function(){
+        	this.contentHandler_.loaded().then(function(){
+        		this.contentHandler_.parse(event.fromRoute, event.toRoute);
+        	}, null, this);
+        }, this);
+    }
+    else {
+        this.lastContentRoute_ = event.toRoute;
+    }
 };
 
 /**
@@ -193,7 +245,8 @@ dj.ext.router.Router.prototype.handleRouteEnd_ = function(event)
  */
 dj.ext.router.Router.prototype.setRoute = function(route, optPreventEvents)
 {
-	return this.routeHandler_.enableRoute(route, true, optPreventEvents);
+	return this.routeHandler_.enableRoute(route, true, optPreventEvents,
+        dj.ext.router.events.RouteEvent.TriggerType.PROGRAMMATICALLY);
 };
 
 /**
@@ -203,7 +256,8 @@ dj.ext.router.Router.prototype.setRoute = function(route, optPreventEvents)
  */
 dj.ext.router.Router.prototype.navigate = function(route)
 {
-	return this.routeHandler_.enableRoute(route);
+	return this.routeHandler_.enableRoute(route, false, false,
+        dj.ext.router.events.RouteEvent.TriggerType.PROGRAMMATICALLY);
 };
 
 /**
@@ -345,6 +399,9 @@ dj.ext.router.Router.prototype.addRouteByElement = function(element)
 			case 'internal':
 				route.routeMethod = dj.ext.router.models.RouteModel.RouteMethod.INTERNAL;
 				break;
+
+            case 'external':
+                route.routeMethod = dj.ext.router.models.RouteModel.RouteMethod.EXTERNAL;
 		}
 	}
 

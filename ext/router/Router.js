@@ -166,8 +166,8 @@ dj.ext.router.Router.prototype.getContentOutlet = function()
 
 /**
  * @public
- * @param {dj.ext.router.events.RouteEvent} fromRoute
- * @param {dj.ext.router.events.RouteEvent} toRoute
+ * @param {dj.ext.router.models.RouteModel} fromRoute
+ * @param {dj.ext.router.models.RouteModel} toRoute
  * @return {boolean}
  */
 dj.ext.router.Router.prototype.isExternal = function(fromRoute, toRoute)

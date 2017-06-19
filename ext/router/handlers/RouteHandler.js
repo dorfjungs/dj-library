@@ -166,7 +166,7 @@ dj.ext.router.handlers.RouteHandler.prototype.enableRoute = function(route, optR
 	}
 
 	resolver.promise.thenAlways(function(){
-		this.fulfillActiveRoute_(optReplace, optPreventEvents)
+		this.fulfillActiveRoute_(optReplace, optPreventEvents, optTriggerType)
 	}, this);
 
 	goog.async.nextTick(resolver.resolve);
@@ -175,11 +175,12 @@ dj.ext.router.handlers.RouteHandler.prototype.enableRoute = function(route, optR
 };
 
 /**
+ * @private
  * @param {boolean=} optReplace
  * @param {boolean=} optPreventEvents
- * @private
+ * @param {number=} optTriggerType
  */
-dj.ext.router.handlers.RouteHandler.prototype.fulfillActiveRoute_ = function(optReplace, optPreventEvents)
+dj.ext.router.handlers.RouteHandler.prototype.fulfillActiveRoute_ = function(optReplace, optPreventEvents, optTriggerType)
 {
 	goog.asserts.assert(this.activeRoute_, 'No active route found');
 
@@ -218,7 +219,8 @@ dj.ext.router.handlers.RouteHandler.prototype.fulfillActiveRoute_ = function(opt
 	if (!optPreventEvents) {
 		this.dispatchEvent(new dj.ext.router.events.RouteEvent(
 			dj.ext.router.events.RouteEvent.EventType.ROUTE_ENDED,
-			this.lastRoute_ ? this.lastRoute_ : this.activeRoute_, this.activeRoute_
+			this.lastRoute_ ? this.lastRoute_ : this.activeRoute_, this.activeRoute_,
+            optTriggerType || dj.ext.router.events.RouteEvent.TriggerType.PROGRAMMATICALLY
 		));
 	}
 

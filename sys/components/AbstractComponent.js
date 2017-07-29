@@ -282,7 +282,7 @@ dj.sys.components.AbstractComponent.prototype.queryComponents = function(selecto
 dj.sys.components.AbstractComponent.prototype.queryElements = function(query, optRoot)
 {
 	return /** @type {Array<Element>} */ (goog.array.slice(
-		(optRoot || this.model.element).querySelectorAll(query), 0));
+		(optRoot || this.model.element).querySelectorAll(query), 0));
 };
 
 /**
@@ -293,7 +293,7 @@ dj.sys.components.AbstractComponent.prototype.queryElements = function(query, op
  */
 dj.sys.components.AbstractComponent.prototype.queryElement = function(query, optRoot)
 {
-	return /** @type {Element} */ ((optRoot || this.model.element).querySelector(query));
+	return /** @type {Element} */ ((optRoot || this.model.element).querySelector(query));
 };
 
 /**

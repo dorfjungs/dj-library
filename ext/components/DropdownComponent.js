@@ -412,22 +412,27 @@ dj.ext.components.DropdownComponent.prototype.createSelect_ = function(name, opt
     var optionElements = [];
 
     goog.object.forEach(options, function(name, value){
+        if (optElement && this.queryElement('option[value="' + value + '"]', optElement)) {
+            return;
+        }
+
         optionElements.push(domHelper.createDom('option', {'value': value}, name));
-    });
+    }, this);
 
     if (optElement) {
-    	this.selectInput_ = optElement;
-    	this.selectInput_.setAttribute('name', name);
+        this.selectInput_ = optElement;
+        this.selectInput_.setAttribute('name', name);
 
-    	for (var i = 0, len = optionElements.length; i < len; i++) {
+
+        for (var i = 0, len = optionElements.length; i < len; i++) {
     		goog.dom.appendChild(this.selectInput_, optionElements[i]);
     	}
     }
     else {
     	this.selectInput_ = domHelper.createDom('select', {'name': name}, optionElements);
     }
-    goog.style.setStyle(this.selectInput_, 'display', 'none');
 
+    goog.style.setStyle(this.selectInput_, 'display', 'none');
     goog.dom.appendChild(this.getElement(), this.selectInput_);
 };
 

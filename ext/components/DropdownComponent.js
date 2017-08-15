@@ -217,7 +217,7 @@ dj.ext.components.DropdownComponent.prototype.handleResize = function()
  */
 dj.ext.components.DropdownComponent.prototype.handleWrapperPopupHide_ = function()
 {
-	this.enableTriggers_(false);
+    this.enableActiveState_(false);
 };
 
 /**
@@ -279,6 +279,10 @@ dj.ext.components.DropdownComponent.prototype.handleOptionClick_ = function(even
 dj.ext.components.DropdownComponent.prototype.handleActiveClick_ = function(event)
 {
 	if ( ! this.disabled_) {
+        if (this.selectInput_) {
+            this.selectInput_.click();
+        }
+
 		this.active_ = this.toggleActiveState_();
         this.enableTriggers_(this.active_);
 	}

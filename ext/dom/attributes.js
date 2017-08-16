@@ -21,10 +21,10 @@ dj.ext.dom.attributes.getAttributes = function(element)
     var list = goog.array.map(goog.array.slice(element.attributes, 0), function(node){
         node = /** @type {Node} */ (node);
 
-        return /** @type {dj.ext.dom.attributes.Attribute} */ {
+        return /** @type {dj.ext.dom.attributes.Attribute} */ ({
             name: node.nodeName,
             value: node.value
-        };
+        });
     });
 
     for (var i = 0, len = list.length; i < len; i++) {

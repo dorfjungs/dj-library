@@ -334,14 +334,17 @@ dj.ext.components.OverlayComponent.prototype.getModelByTrigger = function(trigge
 
 /**
  * @private
- * @param {string} url
+ * @param {goog.Uri} uri
  * @param {goog.Uri.QueryData=} optParameters
  * @return {dj.ext.models.OverlayModel}
  */
-dj.ext.components.OverlayComponent.prototype.getModelByUrl_ = function(url, optParameters)
+dj.ext.components.OverlayComponent.prototype.getModelByUrl_ = function(uri, optParameters)
 {
     for (var i = 0, len = this.overlays_.length; i < len; i++) {
-        if (this.overlays_[i].getUrl() == url) {
+        var overlayUri = new goog.Uri(this.overlays_[i].getUrl());
+
+        if (overlayUri.getPath() == uri.getPath() &&
+            overlayUri.getDomain() == uri.getDomain()) {
             var valid = true;
 
             if (optParameters) {
@@ -613,7 +616,7 @@ dj.ext.components.OverlayComponent.prototype.handleLayerXhrSuccess_ = function(e
     var content = event.target.getResponseText();
     var uri = new goog.Uri(event.target.getLastUri());
     var query = uri.getQueryData();
-    var model = this.getModelByUrl_(uri.getPath(), query.getCount() > 0 ? query : null);
+    var model = this.getModelByUrl_(uri, query.getCount() > 0 ? query : null);
 
     /**
      * Save content for further

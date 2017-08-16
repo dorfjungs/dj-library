@@ -405,9 +405,20 @@ dj.sys.managers.ComponentManager.prototype.loadComponentStack_ = function(method
  */
 dj.sys.managers.ComponentManager.prototype.queryComponentElements_ = function(element, name)
 {
-    return /** @type {Array<Element>} */ (goog.array.slice(element.querySelectorAll(
-        '[' + this.attributeName_ + '="' + name + '"]:not([' + this.attributeId_ + '])'
-    ), 0));
+    var regExp = /^q\((.*)\)$/i;
+    var query = '[' + this.attributeName_ + '="' + name + '"]:not([' + this.attributeId_ + '])';
+
+    if (regExp.test(name)) {
+        var matches = name.match(regExp);
+
+        if (matches.length == 2 &&
+            matches.hasOwnProperty(1) &&
+            matches[1] != name) {
+            query = matches[1];
+        }
+    }
+
+    return /** @type {Array<Element>} */ (goog.array.slice(element.querySelectorAll(query), 0));
 };
 
 /**
@@ -638,11 +649,43 @@ dj.sys.managers.ComponentManager.prototype.setRootElement = function(element)
 
 /**
  * @public
- * @param {string} name
+ * @param {string} slug
+ * @param {string=} optPrefix
  */
-dj.sys.managers.ComponentManager.prototype.setAttributeName = function(name)
+dj.sys.managers.ComponentManager.prototype.setAttributeSlug = function(slug, optPrefix)
 {
-	this.attributeName_ = name;
+    var prefix = optPrefix || 'data-';
+
+    this.setAttributeName(prefix + slug);
+    this.setAttributeId(prefix + slug);
+    this.setAttributeConfig(prefix + slug);
+};
+
+/**
+ * @public
+ * @param {string} slug
+ */
+dj.sys.managers.ComponentManager.prototype.setAttributeName = function(slug)
+{
+	this.attributeName_ = slug;
+};
+
+/**
+ * @public
+ * @param {string} slug
+ */
+dj.sys.managers.ComponentManager.prototype.setAttributeId = function(slug)
+{
+    this.attributeId_ = slug + '-id';
+};
+
+/**
+ * @public
+ * @param {string} slug
+ */
+dj.sys.managers.ComponentManager.prototype.setAttributeConfig = function(slug)
+{
+    this.attributeConfig_ = slug + '-config';
 };
 
 /**
@@ -756,6 +799,25 @@ dj.sys.managers.ComponentManager.prototype.getComponentsByName = function(name, 
 	return new goog.structs.Map(goog.object.filter(components.toObject(), function(component){
 		return component.getName() == name;
 	}));
+};
+
+/**
+ * @public
+ * @param {Element} element
+ * @param {boolean=} optNoIncludes
+ * @return {dj.sys.components.AbstractComponent}
+ */
+dj.sys.managers.ComponentManager.prototype.getComponentByElement = function(element, optNoIncludes)
+{
+    var components = this.getComponents(optNoIncludes).getValues();
+
+    for (var i = 0, len = components.length; i < len; i++) {
+        if (components[i].getElement() == element) {
+            return components[i];
+        }
+    }
+
+    return null;
 };
 
 /**

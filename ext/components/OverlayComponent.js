@@ -436,7 +436,7 @@ dj.ext.components.OverlayComponent.prototype.enableLayer_ = function(isActive, o
 {
     goog.dom.classlist.enable(this.layer_, this.activeClass_, isActive);
 
-    if (!goog.isDefAndNotNull(optPreventNoScroll) && ! optPreventNoScroll) {
+    if (goog.isDefAndNotNull(optPreventNoScroll) && ! optPreventNoScroll) {
         goog.dom.classlist.enable(goog.dom.getDocument()['documentElement'], this.noScrollClass_, isActive);
     }
 };

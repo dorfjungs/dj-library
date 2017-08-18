@@ -19,10 +19,10 @@ dj.ext.components.AccordionComponent = function()
     dj.ext.components.AccordionComponent.base(this, 'constructor');
 
     /**
-     * @private
+     * @protected
      * @type {goog.structs.Map<string, dj.ext.models.AccordionItemModel>}
      */
-    this.items_ = new goog.structs.Map();
+    this.items = new goog.structs.Map();
 };
 
 goog.inherits(
@@ -43,7 +43,7 @@ dj.ext.components.AccordionComponent.prototype.ready = function()
 
         goog.array.forEach(items, function(item){
             var model = this.parseItem_(item);
-            this.items_.set(model.id, model);
+            this.items.set(model.id, model);
         }, this);
 
         goog.async.nextTick(resolve);
@@ -64,7 +64,7 @@ dj.ext.components.AccordionComponent.prototype.handleResize = function()
 {
     dj.ext.components.AccordionComponent.base(this, 'handleResize');
 
-    this.items_.forEach(this.setContentHeight_, this);
+    this.items.forEach(this.setContentHeight_, this);
 };
 
 /**
@@ -114,7 +114,7 @@ dj.ext.components.AccordionComponent.prototype.handleHeaderClick = function(even
 {
     var header = /** @type {Element} */ (event.currentTarget);
     var id = goog.dom.dataset.get(header, 'id');
-    var item = this.items_.get(id);
+    var item = this.items.get(id);
 
     this.toggleItem(item);
 };
@@ -125,7 +125,7 @@ dj.ext.components.AccordionComponent.prototype.handleHeaderClick = function(even
  */
 dj.ext.components.AccordionComponent.prototype.toggleItem = function(item)
 {
-    this.items_.forEach(function(model){
+    this.items.forEach(function(model){
         goog.dom.classlist.enable(
             model.parent,
             dj.ext.components.AccordionComponent.ACTIVE_CLASS,

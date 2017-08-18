@@ -83,7 +83,7 @@ dj.ext.components.AccordionComponent.prototype.parseItem_ = function(item)
     goog.dom.dataset.set(header, 'id', id);
 
     this.getHandler().listen(header, goog.events.EventType.CLICK,
-        this.handleHeaderClick_);
+        this.handleHeaderClick);
 
     model.active = goog.dom.classlist.contains(model.parent,
         dj.ext.components.AccordionComponent.ACTIVE_CLASS);
@@ -107,23 +107,23 @@ dj.ext.components.AccordionComponent.prototype.setContentHeight_ = function(mode
 };
 
 /**
- * @private
+ * @protected
  * @param {goog.events.BrowserEvent} event
  */
-dj.ext.components.AccordionComponent.prototype.handleHeaderClick_ = function(event)
+dj.ext.components.AccordionComponent.prototype.handleHeaderClick = function(event)
 {
     var header = /** @type {Element} */ (event.currentTarget);
     var id = goog.dom.dataset.get(header, 'id');
     var item = this.items_.get(id);
 
-    this.toggleItem_(item);
+    this.toggleItem(item);
 };
 
 /**
- * @private
+ * @protected
  * @param {dj.ext.models.AccordionItemModel} item
  */
-dj.ext.components.AccordionComponent.prototype.toggleItem_ = function(item)
+dj.ext.components.AccordionComponent.prototype.toggleItem = function(item)
 {
     this.items_.forEach(function(model){
         goog.dom.classlist.enable(

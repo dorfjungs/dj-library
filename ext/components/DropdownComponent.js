@@ -252,6 +252,15 @@ dj.ext.components.DropdownComponent.prototype.updateStates_ = function()
 };
 
 /**
+ * @public
+ * @return {goog.structs.Map<string, dj.ext.models.DropdownModel>}
+ */
+dj.ext.components.DropdownComponent.prototype.getOptions = function()
+{
+    return this.options_;
+};
+
+/**
  * @private
  */
 dj.ext.components.DropdownComponent.prototype.updateWrapperSize_ = function()
@@ -446,8 +455,10 @@ dj.ext.components.DropdownComponent.prototype.createSelect_ = function(name, opt
  */
 dj.ext.components.DropdownComponent.prototype.createOptions_ = function(options)
 {
-	goog.object.forEach(options, function(value, key){
-		var option = this.createOptionElement_(key, value);
+    goog.object.forEach(options, function(value, key){
+        key = key == '_empty_' ? '' : key;
+
+        var option = this.createOptionElement_(key, value);
 		var model = new dj.ext.models.DropdownModel(key, value, option);
 
 		goog.dom.appendChild(this.optionWrapper_, option);
@@ -456,6 +467,41 @@ dj.ext.components.DropdownComponent.prototype.createOptions_ = function(options)
 };
 
 /**
+ * @public
+ * @param {Object} config
+ */
+dj.ext.components.DropdownComponent.prototype.setOptions = function(config)
+{
+    this.options_.clear();
+    goog.dom.removeChildren(this.optionWrapper_);
+    this.createOptions_(config);
+
+    this.options_.forEach(function(option){
+        this.getHandler().listen(option.element, goog.events.EventType.CLICK,
+            this.handleOptionClick_);
+    }, this);
+
+    if (this.selectActive_) {
+        goog.dom.removeChildren(this.selectInput_);
+        this.createSelectOptions_();
+    }
+};
+
+/**
+ * @private
+ */
+dj.ext.components.DropdownComponent.prototype.createSelectOptions_ = function()
+{
+    this.options_.forEach(function(value, name){
+        goog.dom.appendChild(
+            this.selectInput_,
+            goog.dom.createDom('option', {'value': name}, value.content)
+        );
+    }, this);
+};
+
+/**
+ * @private
  * @param {string} name
  * @param {string} value
  * @return {Element}

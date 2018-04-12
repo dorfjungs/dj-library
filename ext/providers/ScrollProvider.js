@@ -2,6 +2,7 @@ goog.provide('dj.ext.providers.ScrollProvider');
 
 // goog
 goog.require('goog.events.EventTarget');
+goog.require('goog.userAgent');
 goog.require('goog.math.Size');
 goog.require('goog.style');
 
@@ -114,22 +115,48 @@ dj.ext.providers.ScrollProvider.prototype.scrollTo = function(position)
 dj.ext.providers.ScrollProvider.prototype.disableScrolling = function(disabled, optRestore)
 {
 	if (this.scrollingDisabled_ != disabled) {
-	    var htmlElement = /** @type {!Element} */ (document.querySelector('html'));
+        var htmlElement = /** @type {!Element} */ (document.querySelector('html'));
+        var bodyElement = /** @type {!Element} */ (document.querySelector('body'));
 
 	    if (this.scrollingDisabled_ = disabled) {
 	    	if (optRestore && optRestore == true) {
 	        	this.scrollTo(this.scrollPosition_);
 	        }
 
-	        goog.style.setStyle(htmlElement, 'overflow', 'hidden');
+            goog.style.setStyle(htmlElement, 'overflow', 'hidden');
+
+            if (goog.userAgent.MOBILE) {
+                goog.style.setStyle(bodyElement, {
+                    'position': 'fixed',
+                    'overflow': 'hidden',
+                    'left': '0',
+                    'top': -this.scrollPosition_.y + 'px',
+                    'right': '0',
+                    'bottom': '0'
+                });
+            }
+
 	        this.lastScrollPosiiton_ = this.scrollPosition_.clone();
 	    }
 	    else {
-	    	if (optRestore && optRestore == true) {
-	        	this.scrollTo(this.lastScrollPosiiton_);
-	    	}
+            goog.style.setStyle(htmlElement, 'overflow', '');
 
-	        goog.style.setStyle(htmlElement, 'overflow', '');
+            if (goog.userAgent.MOBILE) {
+                goog.style.setStyle(bodyElement, {
+                    'position': '',
+                    'overflow': '',
+                    'left': '',
+                    'top': '',
+                    'right': '',
+                    'bottom': ''
+                });
+            }
+
+            if (optRestore && optRestore == true) {
+                setTimeout(function(){
+                    this.scrollTo(this.lastScrollPosiiton_);
+                }.bind(this), 0);
+	    	}
 	    }
     }
 };

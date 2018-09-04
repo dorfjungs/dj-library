@@ -291,7 +291,7 @@ dj.ext.components.OverlayComponent.prototype.addModel = function(model)
  */
 dj.ext.components.OverlayComponent.prototype.createModel_ = function(trigger)
 {
-    var parameters = goog.json.parse(goog.dom.dataset.get(trigger, 'parameters') || null);
+    var parameters = JSON.parse(goog.dom.dataset.get(trigger, 'parameters') || null);
 
     if (parameters) {
         parameters = new goog.structs.Map(parameters);

@@ -189,10 +189,12 @@ dj.ext.router.handlers.ContentHandler.prototype.contentParsed_ = function(fromRo
 		this.contentParser_.settle().then(function(){
 			this.dispatchEvent(new dj.ext.router.events.ContentEvent(
 				dj.ext.router.events.ContentEvent.EventType.CONTENT_SETTLED, fromRoute, toRoute, this.contentParser_
-			));
+            ));
 
-			this.contentParser_.clearTasks();
-			this.contentParser_ = null;
+            if (this.contentParser_) {
+                this.contentParser_.clearTasks();
+                this.contentParser_ = null;
+            }
 		}, null, this);
 	}
 };
@@ -232,6 +234,10 @@ dj.ext.router.handlers.ContentHandler.prototype.contentLoaded_ = function(fromRo
  */
 dj.ext.router.handlers.ContentHandler.prototype.parseHtml_ = function(html)
 {
+    if ( ! this.contentParser_) {
+        throw new Error('[Extlib][Router] No content parse to parse the HTML to');
+    }
+
 	// Not the safest way, but this ensures all data (classes, attributes)
 	// will be preserved after the parsing. Unlike the sanatizer.
 

@@ -5,28 +5,27 @@ goog.provide('dj.ext.dom.classlist.inline');
 goog.require('dj.ext.style');
 
 // goog
-goog.require('goog.structs.Map');
 goog.require('goog.asserts');
 goog.require('goog.object');
 goog.require('goog.array');
 
 /**
  * @private
- * @type {goog.structs.Map<string, Object>}
+ * @type {Map<string, Object>}
  */
-dj.ext.dom.classlist.inline.classes_ = new goog.structs.Map();
+dj.ext.dom.classlist.inline.classes_ = new Map();
 
 /**
  * @private
- * @type {goog.structs.Map<string, Array<Element>>}
+ * @type {Map<string, Array<Element>>}
  */
-dj.ext.dom.classlist.inline.states_ = new goog.structs.Map();
+dj.ext.dom.classlist.inline.states_ = new Map();
 
 /**
  * @private
- * @type {goog.structs.Map<Element, Object>}
+ * @type {Map<Element, Object>}
  */
-dj.ext.dom.classlist.inline.restores_ = new goog.structs.Map();
+dj.ext.dom.classlist.inline.restores_ = new Map();
 
 /**
  * Registers a new "inline class" and it's properties
@@ -48,7 +47,7 @@ dj.ext.dom.classlist.inline.register = function(name, optProperties)
  */
 dj.ext.dom.classlist.inline.unregister = function(name)
 {
-	dj.ext.dom.classlist.inline.classes_.remove(name);
+	dj.ext.dom.classlist.inline.classes_.delete(name);
 };
 
 /**
@@ -71,7 +70,7 @@ dj.ext.dom.classlist.inline.edit = function(name, key, value)
  */
 dj.ext.dom.classlist.inline.checkClass_ = function(name)
 {
-	goog.asserts.assert(dj.ext.dom.classlist.inline.classes_.containsKey(name),
+	goog.asserts.assert(dj.ext.dom.classlist.inline.classes_.has(name),
 		"You need to register the class " + name + " first");
 };
 
@@ -97,7 +96,7 @@ dj.ext.dom.classlist.inline.apply_ = function()
  */
 dj.ext.dom.classlist.inline.restore_ = function(element)
 {
-	if (!dj.ext.dom.classlist.inline.restores_.containsKey(element) &&
+	if (!dj.ext.dom.classlist.inline.restores_.has(element) &&
 		!dj.ext.dom.classlist.inline.affected(element)) {
 		var properties = dj.ext.style.getInlineStyles(element);
 
@@ -132,7 +131,7 @@ dj.ext.dom.classlist.inline.enable = function(element, name, enable)
  */
 dj.ext.dom.classlist.inline.add = function(element, name)
 {
-	if (!dj.ext.dom.classlist.inline.states_.containsKey(name)) {
+	if (!dj.ext.dom.classlist.inline.states_.has(name)) {
 		dj.ext.dom.classlist.inline.states_.set(name, []);
 	}
 
@@ -148,7 +147,7 @@ dj.ext.dom.classlist.inline.add = function(element, name)
  */
 dj.ext.dom.classlist.inline.remove = function(element, name)
 {
-	if (dj.ext.dom.classlist.inline.classes_.containsKey(name)) {
+	if (dj.ext.dom.classlist.inline.classes_.has(name)) {
 		dj.ext.dom.classlist.inline.checkClass_(name);
 
 		var elements = dj.ext.dom.classlist.inline.states_.get(name);
@@ -169,11 +168,11 @@ dj.ext.dom.classlist.inline.remove = function(element, name)
 		goog.array.remove(elements, element);
 
 		if (!dj.ext.dom.classlist.inline.affected(element)) {
-			dj.ext.dom.classlist.inline.restores_.remove(element);
+			dj.ext.dom.classlist.inline.restores_.delete(element);
 		}
 
 		if (elements.length == 0) {
-			dj.ext.dom.classlist.inline.states_.remove(name);
+			dj.ext.dom.classlist.inline.states_.delete(name);
 		}
 		else {
 			dj.ext.dom.classlist.inline.apply_();
@@ -190,7 +189,8 @@ dj.ext.dom.classlist.inline.remove = function(element, name)
 dj.ext.dom.classlist.inline.contains = function(element, name)
 {
 	var elements = dj.ext.dom.classlist.inline.states_.get(name);
-	return elements && elements.indexOf(element) > -1;
+	
+	return !!elements && elements.indexOf(element) > -1;
 };
 
 /**
@@ -201,7 +201,7 @@ dj.ext.dom.classlist.inline.contains = function(element, name)
 dj.ext.dom.classlist.inline.affected = function(element)
 {
 	var affected = false;
-	var elementLists = dj.ext.dom.classlist.inline.states_.getValues();
+	var elementLists = Array.from(dj.ext.dom.classlist.inline.states_.values());
 
 	for (var i = 0, len = elementLists.length; i < len; i++) {
 		affected = elementLists[i].indexOf(element) > -1;

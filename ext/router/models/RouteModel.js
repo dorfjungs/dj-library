@@ -2,15 +2,17 @@ goog.provide('dj.ext.router.models.RouteModel');
 
 // goog
 goog.require('goog.Uri');
-goog.require('goog.json');
 goog.require('goog.ui.IdGenerator');
+
+// dj
+goog.require('dj.ext.utils.map');
 
 /**
  * @struct
  * @constructor
  * @param {string} uri
  * @param {string=} optTitle
- * @param {goog.structs.Map<string, string>|Object=} optParameters
+ * @param {Map<string, string>|Object=} optParameters
  * @param {string=} optId
  */
 dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
@@ -59,9 +61,9 @@ dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
 
 	/**
 	 * @public
-	 * @type {goog.structs.Map<string, string>}
+	 * @type {Map<string, string>}
 	 */
-	this.parameters = new goog.structs.Map(optParameters || {});
+	this.parameters = dj.ext.utils.map.create(optParameters);
 
 	/**
 	 * @public
@@ -120,7 +122,7 @@ dj.ext.router.models.RouteModel.prototype.clone = function()
  */
 dj.ext.router.models.RouteModel.parse = function(string)
 {
-	var obj = goog.json.parse(string);
+	var obj = JSON.parse(string);
 	var route = new dj.ext.router.models.RouteModel(
 		obj['url'], obj['title'], obj['parameters'], obj['id']
 	);
@@ -139,14 +141,14 @@ dj.ext.router.models.RouteModel.parse = function(string)
  */
 dj.ext.router.models.RouteModel.serialize = function(route)
 {
-	return goog.json.serialize({
+	return JSON.stringify({
 		'id': route.id,
 		'url': route.loadUrl.toString(),
         'parent': route.parent ? dj.ext.router.models.RouteModel.serialize(route.parent) : null,
 		'title': route.title,
 		'loadMethod': route.loadMethod,
 		'routeMethod': route.routeMethod,
-		'parameters': route.parameters.toObject(),
+		'parameters': dj.ext.utils.map.toObject(route.parameters),
 		'active': route.active
 	});
 };

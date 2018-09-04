@@ -32,9 +32,9 @@ dj.ext.router.transitions.AbstractTransition = function(router, namespace)
 
 	/**
 	 * @private
-	 * @type {goog.structs.Map<string, *>}
+	 * @type {Map<string, *>}
 	 */
-	this.cycleParameters_ = new goog.structs.Map();
+	this.cycleParameters_ = new Map();
 
     /**
      * @private
@@ -155,7 +155,7 @@ dj.ext.router.transitions.AbstractTransition.prototype.setParameter = function(k
 
 /**
  * @protected
- * @param {goog.structs.Map<string, *>} parameters
+ * @param {Map<string, *>} parameters
  */
 dj.ext.router.transitions.AbstractTransition.prototype.parameterUpdate = function(parameters)
 {

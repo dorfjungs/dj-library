@@ -48,9 +48,9 @@ dj.ext.router.parsers.ContentParser = function(rootEl)
 
 	/**
 	 * @private
-	 * @type {goog.structs.Map<string, Function>}
+	 * @type {Map<string, Function>}
 	 */
-	this.replaceTasks_ = new goog.structs.Map();
+	this.replaceTasks_ = new Map();
 
 	/**
 	 * @private
@@ -60,9 +60,9 @@ dj.ext.router.parsers.ContentParser = function(rootEl)
 
 	/**
 	 * @private
-	 * @type {goog.structs.Map<string, Function>}
+	 * @type {Map<string, Function>}
 	 */
-	this.injectTasks_ = new goog.structs.Map();
+	this.injectTasks_ = new Map();
 
 	/**
 	 * @private
@@ -72,9 +72,9 @@ dj.ext.router.parsers.ContentParser = function(rootEl)
 
 	/**
 	 * @private
-	 * @type {goog.structs.Map<string, Function>}
+	 * @type {Map<string, Function>}
 	 */
-	this.settleTasks_ = new goog.structs.Map();
+	this.settleTasks_ = new Map();
 
 	/**
 	 * @private
@@ -171,7 +171,7 @@ dj.ext.router.parsers.ContentParser.prototype.settle = function()
                 if (!this.canceled_) {
                     goog.async.nextTick(resolve);
                 }
-			});
+			}, null, this);
 		}
 	}, this);
 };
@@ -277,7 +277,7 @@ dj.ext.router.parsers.ContentParser.prototype.addReplaceTask = function(name, ta
 dj.ext.router.parsers.ContentParser.prototype.overrideReplaceTask = function(oldName, newName, optTask)
 {
 	this.overriddenReplaceTasks_.push(oldName);
-	this.replaceTasks_.remove(oldName);
+	this.replaceTasks_.delete(oldName);
 
 	if (optTask) {
 		this.addReplaceTask(newName, optTask);
@@ -305,7 +305,7 @@ dj.ext.router.parsers.ContentParser.prototype.addInjectTask = function(name, tas
 dj.ext.router.parsers.ContentParser.prototype.overrideInjectTask = function(oldName, newName, optTask)
 {
 	this.overriddenInjectTasks_.push(oldName);
-	this.injectTasks_.remove(oldName);
+	this.injectTasks_.delete(oldName);
 
 	if (optTask) {
 		this.addInjectTask(newName, optTask);
@@ -333,7 +333,7 @@ dj.ext.router.parsers.ContentParser.prototype.addSettleTask = function(name, tas
 dj.ext.router.parsers.ContentParser.prototype.overrideSettleTask = function(oldName, newName, optTask)
 {
 	this.overriddenSettleTasks_.push(oldName);
-	this.settleTasks_.remove(oldName);
+	this.settleTasks_.delete(oldName);
 
 	if (optTask) {
 		this.addSettleTask(newName, optTask);

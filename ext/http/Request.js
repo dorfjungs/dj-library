@@ -4,7 +4,6 @@ goog.provide('dj.ext.http.Request');
 goog.require('goog.events.EventTarget');
 goog.require('goog.net.XhrIo');
 goog.require('goog.Promise');
-goog.require('goog.json');
 
 /**
  * @constructor
@@ -36,8 +35,12 @@ dj.ext.http.Request.send = function(url, optMethod, optContent, optHeaders)
 			var content = event.target.getResponse();
 
 			// Check if response is in json format
-			if (goog.json.isValid(content)) {
-				content = goog.json.parse(content);
+			try {
+				var jsonContent = JSON.parse(content);
+			} catch(e) {}
+
+			if (jsonContent) {
+				content = jsonContent
 			}
 
 			resolve(content);

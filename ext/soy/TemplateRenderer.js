@@ -76,7 +76,7 @@ dj.ext.soy.TemplateRenderer.prototype.render = function(root)
         var attributes = {};
 
         if (goog.dom.dataset.has(element, 'attributes')) {
-            attributes = goog.json.parse(/** @type {string} */ (
+            attributes = JSON.parse(/** @type {string} */ (
                 goog.dom.dataset.get(element, 'attributes')
             ));
         }

@@ -11,9 +11,9 @@ dj.ext.router.registry.TitleRegistry = function()
 {
     /**
      * @private
-     * @type {goog.structs.Map<string, string>}
+     * @type {Map<string, string>}
      */
-    this.titleMap_ = new goog.structs.Map();
+    this.titleMap_ = new Map();
 };
 
 /**
@@ -53,7 +53,7 @@ dj.ext.router.registry.TitleRegistry.prototype.getTitle = function(route)
  */
 dj.ext.router.registry.TitleRegistry.prototype.getUrl = function(route)
 {
-    var urls = this.titleMap_.getKeys();
+    var urls = Array.from(this.titleMap_.keys());
 
     for (var i = 0, len = urls.length; i < len; i++) {
         if (route.match(urls[i])) {

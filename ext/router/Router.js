@@ -9,10 +9,11 @@ goog.require('dj.ext.router.handlers.RouteHandler');
 goog.require('dj.ext.router.handlers.ContentHandler');
 goog.require('dj.ext.router.models.RouteModel');
 goog.require('dj.ext.router.models.ContentModel');
+goog.require('dj.ext.utils.map');
 
 /**
  * @constructor
- * @param {Object=} optRouteParameters
+ * @param {(Array<Array<string>>|Object|Map<string, string>)=} optRouteParameters
  */
 dj.ext.router.Router = function(optRouteParameters)
 {
@@ -36,21 +37,21 @@ dj.ext.router.Router = function(optRouteParameters)
 
 	/**
 	 * @private
-	 * @type {goog.structs.Map<string, Element>}
+	 * @type {Map<string, Element>}
 	 */
-	this.routeElements_ = new goog.structs.Map();
+	this.routeElements_ = new Map();
 
     /**
      * @private
-     * @type {goog.structs.Map<string, Array<goog.events.Key>>}
+     * @type {Map<string, Array<goog.events.Key>>}
      */
-    this.routeListenerKeys_ = new goog.structs.Map();
+    this.routeListenerKeys_ = new Map();
 
     /**
      * @private
-     * @type {goog.structs.Map<string, string>}
+     * @type {Map<string, string>}
      */
-    this.routeParameters_ = new goog.structs.Map(optRouteParameters || {});
+    this.routeParameters_ = dj.ext.utils.map.create(optRouteParameters);
 
     /**
      * @private
@@ -354,7 +355,7 @@ dj.ext.router.Router.prototype.cleanRoutes = function(optScope)
         var route = this.getRouteById(id);
 
         this.removeRouteListener_(route);
-        this.routeElements_.remove(id);
+        this.routeElements_.delete(id);
 		goog.array.remove(this.routes_, route);
 	}, this);
 };
@@ -385,7 +386,7 @@ dj.ext.router.Router.prototype.addRouteByElement = function(element)
 	var route = new dj.ext.router.models.RouteModel(
 		this.getRouteUrlByElement_(element),
 		goog.dom.dataset.get(element, 'title') || '',
-		params ? goog.json.parse(params) : null
+		params ? /** @type {Object} */ (JSON.parse(params)) : undefined
 	);
 
 	if (goog.dom.dataset.has(element, 'loadMethod')) {
@@ -461,7 +462,7 @@ dj.ext.router.Router.prototype.getRouteElement = function(route)
  */
 dj.ext.router.Router.prototype.addRouteListenerKey_ = function(route, key)
 {
-    if (this.routeListenerKeys_.containsKey(route.id)) {
+    if (this.routeListenerKeys_.has(route.id)) {
         this.routeListenerKeys_.get(route.id).push(key);
     }
     else {
@@ -476,7 +477,7 @@ dj.ext.router.Router.prototype.addRouteListenerKey_ = function(route, key)
  */
 dj.ext.router.Router.prototype.removeRouteListenerKey_ = function(route, key)
 {
-    if (this.routeListenerKeys_.containsKey(route.id)) {
+    if (this.routeListenerKeys_.has(route.id)) {
         goog.array.remove(this.routeListenerKeys_.get(route.id), key);
     }
 };
@@ -487,7 +488,7 @@ dj.ext.router.Router.prototype.removeRouteListenerKey_ = function(route, key)
  */
 dj.ext.router.Router.prototype.addRouteListener_ = function(route)
 {
-    if (this.routeElements_.containsKey(route.id)) {
+    if (this.routeElements_.has(route.id)) {
 		var element = this.routeElements_.get(route.id);
 		var listenerKey = goog.events.listen(element, goog.events.EventType.CLICK,
 			this.handleRouteElementClick_.bind(this, route), false);
@@ -502,7 +503,7 @@ dj.ext.router.Router.prototype.addRouteListener_ = function(route)
  */
 dj.ext.router.Router.prototype.removeRouteListener_ = function(route)
 {
-    if (this.routeElements_.containsKey(route.id)) {
+    if (this.routeElements_.has(route.id)) {
         var element = this.routeElements_.get(route.id);
         var listenerKeys = this.routeListenerKeys_.get(route.id);
 

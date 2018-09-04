@@ -2,9 +2,7 @@ goog.provide('dj.sys.managers.ComponentManager');
 
 // goog
 goog.require('goog.dom');
-goog.require('goog.json');
 goog.require('goog.dom.dataset');
-goog.require('goog.structs.Map');
 goog.require('goog.asserts');
 goog.require('goog.Promise');
 goog.require('goog.dom.classlist');
@@ -64,21 +62,21 @@ dj.sys.managers.ComponentManager = function()
 
 	/**
 	 * @private
-	 * @type {goog.structs.Map<string, dj.sys.components.AbstractComponent>}
+	 * @type {Map<string, dj.sys.components.AbstractComponent>}
 	 */
-	this.components_ = new goog.structs.Map();
+	this.components_ = new Map();
 
 	/**
 	 * @private
-	 * @type {goog.structs.Map<string, dj.sys.models.ComponentModel>}
+	 * @type {Map<string, dj.sys.models.ComponentModel>}
 	 */
-	this.componentModels_ = new goog.structs.Map();
+	this.componentModels_ = new Map();
 
 	/**
 	 * @private
-	 * @type {goog.structs.Map<string, dj.sys.managers.ComponentManager.ComponentConfig>}
+	 * @type {Map<string, dj.sys.managers.ComponentManager.ComponentConfig>}
 	 */
-	this.componentConfig_ = new goog.structs.Map();
+	this.componentConfig_ = new Map();
 
 	/**
 	 * @private
@@ -182,7 +180,7 @@ dj.sys.managers.ComponentManager.prototype.update = function(optClasses, optScop
 	this.components_.forEach(function(component, id){
 		if (!goog.dom.contains(rootElement, component.getElement())) {
 			component.dispose();
-			this.components_.remove(id);
+			this.components_.delete(id);
 		}
 	}, this);
 
@@ -199,7 +197,7 @@ dj.sys.managers.ComponentManager.prototype.update = function(optClasses, optScop
 			var model = this.parseComponentElement_(name, element);
 
 			if (model.hasRule(dj.sys.managers.ComponentManager.ComponentRules.DENY_MULTIPLE)) {
-				if (this.getModelsByName(name).getCount() >= 1) {
+				if (this.getModelsByName(name).size >= 1) {
 					throw new Error('The component "' + name + '" can\'t exist multiple times');
 				}
 			}
@@ -446,7 +444,7 @@ dj.sys.managers.ComponentManager.prototype.instatiateComponentByModel_ = functio
 dj.sys.managers.ComponentManager.prototype.createStackByModels_ = function(models, order)
 {
 	var depthArray = [];
-	var depthOrder = new goog.structs.Map();
+	var depthOrder = new Map();
 	var depthBuckets = goog.array.bucket(models, function(model){
 		return model.depth;
 	});
@@ -483,7 +481,7 @@ dj.sys.managers.ComponentManager.prototype.setParentModel_ = function(model)
 	var rootElement = this.getRootElement();
 	var parentModel = null;
 	var elementDepth = 0;
-	var parentId = -1;
+	var parentId = '-1';
 
 	while (parentElement && goog.dom.contains(rootElement, parentElement)) {
 		if (parentElement.hasAttribute(this.attributeId_)) {
@@ -545,11 +543,22 @@ dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(nam
 		if (this.isBase64_(dynamicConfig)) {
 			dynamicConfig = goog.crypt.base64.decodeString(dynamicConfig);
 		}
+		
+		// Remove trailing commas from json, since we're using the 
+		// native parser. The previous parse method from google closure 
+		// (which is now depcrecated) allowed trailing commas in the 
+		// json structure. To ensure maximum compatibility with old instances
+		// We're killing them here.
+		dynamicConfig = dynamicConfig.replace(/\,(?!\s*?[\{\[\"\'\w])/g, '');
 
-		goog.asserts.assert(goog.json.isValid(dynamicConfig),
-			'Invalid config for ' + name + ' component');
-
-		componentModel.dynamicConfig = goog.json.parse(dynamicConfig);
+		// Parse json natively
+		try {
+			componentModel.dynamicConfig = /** @type {Object} */ (JSON.parse(dynamicConfig));
+		} catch(err) {
+			throw new Error(
+				`[Extlib][ComponentManager] Invalid component config given for "${name}": ${err}`
+			);
+		}
 	}
 
 	this.parseStaticConfig_(componentModel, componentConfig.config);
@@ -606,7 +615,7 @@ dj.sys.managers.ComponentManager.prototype.parseComponentConfigParsers_ = functi
  */
 dj.sys.managers.ComponentManager.prototype.getConfigByClass_ = function(ctor)
 {
-    var configs = this.componentConfig_.getValues();
+    var configs = Array.from(this.componentConfig_.values());
 
     for (var i = 0, len = configs.length; i < len; i++) {
         if (configs[i].class == ctor) {
@@ -700,7 +709,7 @@ dj.sys.managers.ComponentManager.prototype.getAttributeId = function()
 /**
  * @public
  * @param {boolean=} optNoIncludes
- * @return {goog.structs.Map<string, dj.sys.models.ComponentModel>}
+ * @return {Map<string, dj.sys.models.ComponentModel>}
  */
 dj.sys.managers.ComponentManager.prototype.getModels = function(optNoIncludes)
 {
@@ -709,7 +718,7 @@ dj.sys.managers.ComponentManager.prototype.getModels = function(optNoIncludes)
 	if (!optNoIncludes) {
 		var includedModels = this.getIncludedModels();
 
-		includedModels.addAll(models);
+		dj.ext.utils.map.merge(includedModels, models);
 
 		models = includedModels;
 	}
@@ -734,28 +743,33 @@ dj.sys.managers.ComponentManager.prototype.getModelById = function(id, optNoIncl
  * @public
  * @param {string} name
  * @param {boolean=} optNoIncludes
- * @return {goog.structs.Map<string, dj.sys.models.ComponentModel>}
+ * @return {Map<string, dj.sys.models.ComponentModel>}
  */
 dj.sys.managers.ComponentManager.prototype.getModelsByName = function(name, optNoIncludes)
 {
 	var models = this.getModels(optNoIncludes);
 
-	return new goog.structs.Map(goog.object.filter(models.toObject(), function(model){
-		return model.name == name;
-	}));
+	return dj.ext.utils.map.create(
+		goog.object.filter(
+			dj.ext.utils.map.toObject(models), 
+			function(model){
+				return model.name == name;
+			}
+		)
+	);
 };
 
 
 /**
  * @public
- * @return {goog.structs.Map<string, dj.sys.models.ComponentModel>}
+ * @return {Map<string, dj.sys.models.ComponentModel>}
  */
 dj.sys.managers.ComponentManager.prototype.getIncludedModels = function()
 {
-	var models = new goog.structs.Map();
+	var models = new Map();
 
 	for (var i = 0, len = this.includedManagers_.length; i < len; i++) {
-		models.addAll(this.includedManagers_[i].getModels());
+		dj.ext.utils.map.merge(models, this.includedManagers_[i].getModels());
 	}
 
 	return models;
@@ -790,15 +804,20 @@ dj.sys.managers.ComponentManager.prototype.getComponentById = function(id, optNo
  * @public
  * @param {string} name
  * @param {boolean=} optNoIncludes
- * @return {goog.structs.Map<string, dj.sys.components.AbstractComponent>}
+ * @return {Map<string, dj.sys.components.AbstractComponent>}
  */
 dj.sys.managers.ComponentManager.prototype.getComponentsByName = function(name, optNoIncludes)
 {
 	var components = this.getComponents(optNoIncludes);
 
-	return new goog.structs.Map(goog.object.filter(components.toObject(), function(component){
-		return component.getName() == name;
-	}));
+	return dj.ext.utils.map.create(
+		goog.object.filter(
+			dj.ext.utils.map.toObject(components), 
+			function(component){
+				return component.getName() == name;
+			}
+		)
+	);
 };
 
 /**
@@ -809,7 +828,7 @@ dj.sys.managers.ComponentManager.prototype.getComponentsByName = function(name, 
  */
 dj.sys.managers.ComponentManager.prototype.getComponentByElement = function(element, optNoIncludes)
 {
-    var components = this.getComponents(optNoIncludes).getValues();
+    var components = Array.from(this.getComponents(optNoIncludes).values());
 
     for (var i = 0, len = components.length; i < len; i++) {
         if (components[i].getElement() == element) {
@@ -823,7 +842,7 @@ dj.sys.managers.ComponentManager.prototype.getComponentByElement = function(elem
 /**
  * @public
  * @param {boolean=} optNoIncludes
- * @return {goog.structs.Map<string, dj.sys.components.AbstractComponent>}
+ * @return {Map<string, dj.sys.components.AbstractComponent>}
  */
 dj.sys.managers.ComponentManager.prototype.getComponents = function(optNoIncludes)
 {
@@ -832,7 +851,7 @@ dj.sys.managers.ComponentManager.prototype.getComponents = function(optNoInclude
 	if (!optNoIncludes) {
 		var includedComponents = this.getIncludedComponents();
 
-		includedComponents.addAll(components);
+		dj.ext.utils.map.merge(includedComponents, components);
 
 		components = includedComponents;
 	}
@@ -842,14 +861,14 @@ dj.sys.managers.ComponentManager.prototype.getComponents = function(optNoInclude
 
 /**
  * @public
- * @return {goog.structs.Map<string, dj.sys.components.AbstractComponent>}
+ * @return {Map<string, dj.sys.components.AbstractComponent>}
  */
 dj.sys.managers.ComponentManager.prototype.getIncludedComponents = function()
 {
-	var components = new goog.structs.Map();
+	var components = new Map();
 
 	for (var i = 0, len = this.includedManagers_.length; i < len; i++) {
-		components.addAll(this.includedManagers_[i].getComponents());
+		dj.ext.utils.map.merge(components, this.includedManagers_[i].getComponents());
 	}
 
 	return components;

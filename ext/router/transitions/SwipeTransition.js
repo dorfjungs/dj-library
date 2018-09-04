@@ -54,6 +54,12 @@ dj.ext.router.transitions.SwipeTransition = function(router, namespace)
 	 * @type {string}
 	 */
 	this.direction_ = this.defaultDirection_;
+
+	/**
+	 * @private
+	 * @type {Array<number>}
+	 */
+	this.timeouts_ = [];
 };
 
 goog.inherits(
@@ -167,6 +173,12 @@ dj.ext.router.transitions.SwipeTransition.prototype.parameterUpdate = function(p
 };
 
 /** @inheritDoc */
+dj.ext.router.transitions.SwipeTransition.prototype.contentCanceled = function()
+{
+	this.clearTimeouts_();
+};
+
+/** @inheritDoc */
 dj.ext.router.transitions.SwipeTransition.prototype.cycleEnded = function()
 {
 	this.time_ = this.defaultTime_;
@@ -175,6 +187,16 @@ dj.ext.router.transitions.SwipeTransition.prototype.cycleEnded = function()
 
 	this.updateDirection_();
 	this.updateCssTransition_();
+};
+
+/** @private */
+mackmedia.router.transitions.LayerSwipeTransition.prototype.clearTimeouts_ = function()
+{
+    for (var i = 0, len = this.timeouts_.length; i < len; i++) {
+        clearTimeout(this.timeouts_[i]);
+    }
+
+    this.timeouts_ = [];
 };
 
 /** @inheritDoc */
@@ -188,12 +210,12 @@ dj.ext.router.transitions.SwipeTransition.prototype.replaceContent = function(ol
 		for (var i = 0, len = newElements.length; i < len; i++) {
 			dj.ext.dom.classlist.inline.enable(newElements[i], this.classNs_ + 'ready', true);
 
-			setTimeout(function(element){
+			this.timeouts_.push(setTimeout(function(element){
 				dj.ext.dom.classlist.inline.enable(element, this.classNs_ + 'animate', true);
-			}.bind(this, newElements[i]), 50);
+			}.bind(this, newElements[i]), 50));
 		}
 
-		setTimeout(function(){
+		this.timeouts_.push(setTimeout(function(){
 			for (var i = 0, len = newElements.length; i < len; i++) {
 				dj.ext.dom.classlist.inline.enable(newElements[i], this.classNs_ + 'ready', false);
 				dj.ext.dom.classlist.inline.enable(newElements[i], this.classNs_ + 'animate', false);
@@ -204,6 +226,6 @@ dj.ext.router.transitions.SwipeTransition.prototype.replaceContent = function(ol
 			}
 
 			resolve();
-		}.bind(this), this.time_ + 50);
+		}.bind(this), this.time_ + 50));
 	}, this);
 };

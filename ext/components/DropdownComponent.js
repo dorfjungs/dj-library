@@ -3,7 +3,6 @@ goog.provide('dj.ext.components.DropdownComponent');
 // goog
 goog.require('goog.dom');
 goog.require('goog.array');
-goog.require('goog.json');
 goog.require('goog.style');
 goog.require('goog.dom.classlist');
 goog.require('goog.async.nextTick');
@@ -114,7 +113,7 @@ goog.inherits(
 dj.ext.components.DropdownComponent.prototype.ready = function()
 {
 	return this.baseReady(dj.ext.components.DropdownComponent, function(resolve, reject){
-		var options = goog.json.parse(goog.dom.dataset.get(this.getElement(), 'options'));
+		var options = JSON.parse(goog.dom.dataset.get(this.getElement(), 'options'));
 
 		this.label_ = /** @type {string} */ (goog.dom.dataset.get(this.getElement(), 'label'));
 		this.activeElement_ = this.getElementByClass('active');

@@ -98,10 +98,12 @@ dj.ext.router.handlers.ContentHandler.prototype.parse = function(fromRoute, toRo
 				this.contentReady_(fromRoute, toRoute);
 
 				goog.async.nextTick(function(){
-					this.contentParser_.replace().then(function(){
-						this.contentParsed_(fromRoute, toRoute);
-						resolve();
-					}, null, this);
+                    if (this.contentParser_) {
+                        this.contentParser_.replace().then(function(){
+                            this.contentParsed_(fromRoute, toRoute);
+                            resolve();
+                        }, null, this);
+                    }
 				}, this);
 			}, null, this);
 		}
@@ -118,15 +120,15 @@ dj.ext.router.handlers.ContentHandler.prototype.parse = function(fromRoute, toRo
  */
 dj.ext.router.handlers.ContentHandler.prototype.cancel = function(fromRoute, toRoute)
 {
-	var canceled = false;
+    var canceled = false;
 
 	if (this.xhr_ && this.xhr_.isActive()) {
-		canceled = true;
+        canceled = true;
 		this.xhr_.abort(goog.net.ErrorCode.NO_ERROR);
 	}
 
 	if (this.contentParser_) {
-		canceled = true;
+        canceled = true;
 		this.contentParser_.cancel();
 	}
 

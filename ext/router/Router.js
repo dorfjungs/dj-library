@@ -77,9 +77,7 @@ dj.ext.router.Router = function(optRouteParameters)
 dj.ext.router.Router.prototype.start = function()
 {
 	this.routeHandler_.init();
-
 	this.eventHandler_.listen(this.routeHandler_, dj.ext.router.events.RouteEvent.EventType.ROUTE_STARTED, this.handleRouteStart_);
-
 	this.eventHandler_.listen(this.routeHandler_, dj.ext.router.events.RouteEvent.EventType.ROUTE_ENDED, this.handleRouteEnd_);
 };
 
@@ -89,9 +87,7 @@ dj.ext.router.Router.prototype.start = function()
 dj.ext.router.Router.prototype.stop = function()
 {
 	this.routeHandler_.deinit();
-
 	this.eventHandler_.unlisten(this.routeHandler_, dj.ext.router.events.RouteEvent.EventType.ROUTE_STARTED, this.handleRouteStart_);
-
 	this.eventHandler_.unlisten(this.routeHandler_, dj.ext.router.events.RouteEvent.EventType.ROUTE_ENDED, this.handleRouteEnd_);
 };
 
@@ -263,11 +259,15 @@ dj.ext.router.Router.prototype.navigate = function(route)
 /**
  * @public
  * @param {string} url
+ * @param {string=} optTitle
+ * @param {Object=} optParameters
  * @return {goog.Promise}
  */
-dj.ext.router.Router.prototype.navigateByUrl = function(url)
+dj.ext.router.Router.prototype.navigateByUrl = function(url, optTitle, optParameters)
 {
-	return this.navigate(this.getRouteByUrl(url));
+	const route = this.getRouteByUrl(url) || this.createRoute(url, optTitle, optParameters);
+
+	return this.navigate(route);
 };
 
 /**

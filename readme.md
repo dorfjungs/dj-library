@@ -1,19 +1,15 @@
-# dj library
-A javascriot library which builds it's components on the latest version of the underrated closure library.
+# google-closure-extlib
+A library extending the underrated closure library.
 
 ## Intro
 
 ### What you need to use it
 You just need to get the latest version of the closure library: https://github.com/google/closure-library
 
-### Coming features
-- Dynamic configuration for each component (incl. base64)
-- Static configuration for each component
 
 ### SYS and EXT
-**SYS:** It provides the component manager of the library.
-
-**EXT:** All components and utilities already created. E.g. OverlyComponent, DropdownComponent, ...
+**SYS:** It provides the component manager of the library. Because *core* is too mainstream
+**EXT:** All components and utils available. E.g. router, overlay component, fancy effects
 
 ## Component
 
@@ -41,7 +37,7 @@ You have to methods to affect the loading and initialization behaviour of a comp
 
 ### The components ready method
 
-This method is the first after the component manager has become a component for initialization. This function needs to return a promise, which tells the component manager to continue with the initialization. There is a helper function for this in the parent component to prevent differences between the components. This could look like this:
+This function needs to return a promise, which tells the component manager to continue with the initialization. There is a helper function for this in the parent component to prevent differences between the components. This could look like this:
 
 ```javascript
 /** @inheritDoc */
@@ -57,7 +53,7 @@ your.sample.Component.prototype.ready = function()
 
 ### The components init method
 
-After the component is ready the manager goes to the next function: "init". It's behaving like the ready method:
+After the component is declaredy ready the manager goes for initialization: "init". It's behaving like the ready method:
 ```javascript
 /** @inheritDoc */
 your.sample.Component.prototype.init = function()
@@ -72,15 +68,13 @@ your.sample.Component.prototype.init = function()
 
 ### The features of AbstractComponent
 
-The base class comes with some useful features. Like a handleResize or handleScroll implementation. To register these functionalities you can call
+The base class comes with some useful features. Like `handleResize` or `handleScroll` implementation. To register these functionalities you can call
 ```javascript
 this.listenScroll();
-```
-or
-```javascript
+// or
 this.listenResize();
 ```
-This will register a listener on the scroll or resize provider. You are able to do your stuff on resize or scroll by overriding these two functions:
+This will register a listener on the scroll or resize provider (Also works together, though). You are able to do your stuff on resize or scroll by overriding these two functions:
 ```javascript
 /** @inheritDoc */
 your.sample.Component.prototype.handleResize = function()

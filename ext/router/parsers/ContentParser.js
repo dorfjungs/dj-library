@@ -126,7 +126,7 @@ dj.ext.router.parsers.ContentParser.prototype.inject = function()
 		if (this.contentModel_) {
 			if (!this.canceled_) {
 				this.runInjectTasks().then(function(){
-					if (!this.injected_) {
+					if (!this.injected_ && !this.canceled_) {
 						this.injected_ = true;
 						goog.dom.insertChildAt(this.rootElement_, this.contentModel_.fragment, 0);
 
@@ -150,8 +150,10 @@ dj.ext.router.parsers.ContentParser.prototype.replace = function()
 	return new goog.Promise(function(resolve, reject){
 		if (!this.canceled_) {
 			this.runReplaceTasks().then(function(){
-				goog.array.forEach(this.oldContentElements_, goog.dom.removeNode);
-				goog.async.nextTick(resolve);
+                if (!this.canceled_) {
+                    goog.array.forEach(this.oldContentElements_, goog.dom.removeNode);
+                    goog.async.nextTick(resolve);
+                }
 			}, null, this);
 		}
 	}, this);
@@ -166,7 +168,9 @@ dj.ext.router.parsers.ContentParser.prototype.settle = function()
 	return new goog.Promise(function(resolve, reject){
 		if (!this.canceled_) {
 			this.runSettleTasks().then(function(){
-				goog.async.nextTick(resolve);
+                if (!this.canceled_) {
+                    goog.async.nextTick(resolve);
+                }
 			});
 		}
 	}, this);

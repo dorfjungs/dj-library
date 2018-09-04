@@ -1,7 +1,7 @@
 {
-	"name": "dj-library",
-	"version": "1.0.110",
-	"description": "An extension library for the underrated google closure library",
+	"name": "@dorfjungs/google-closure-extlib",
+	"version": "1.0.0",
+	"description": "A simple extension library for the underrated google closure library",
 	"keywords": ["google", "closure", "components", "dorfjungs", "javascript"],
 	"homepage": "https://github.com/Dorfjungs/dj-library",
 	"repository": "https://github.com/Dorfjungs/dj-library",

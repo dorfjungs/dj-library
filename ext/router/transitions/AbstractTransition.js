@@ -135,6 +135,8 @@ dj.ext.router.transitions.AbstractTransition.prototype.handleContentSettled_ = f
 dj.ext.router.transitions.AbstractTransition.prototype.handleContentCanceled_ = function(event)
 {
     if ( ! this.disabled_) {
+        this.contentCanceled();
+
     	this.cycleParameters_.clear();
     	this.cycleEnded();
     }
@@ -170,6 +172,14 @@ dj.ext.router.transitions.AbstractTransition.prototype.cycleEnded = function()
  * @protected
  */
 dj.ext.router.transitions.AbstractTransition.prototype.loadContent = function()
+{
+
+};
+
+/**
+ * @protected
+ */
+dj.ext.router.transitions.AbstractTransition.prototype.contentCanceled = function()
 {
 
 };

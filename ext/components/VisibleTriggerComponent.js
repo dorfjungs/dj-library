@@ -288,7 +288,7 @@ dj.ext.components.VisibleTriggerComponent.prototype.wasVisible = function()
  */
 dj.ext.components.VisibleTriggerComponent.prototype.getVisibleOffset = function()
 {
-    return this.elementOffset_;
+    return this.visibleOffset_;
 };
 
 /**

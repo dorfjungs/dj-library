@@ -184,10 +184,6 @@ dj.ext.router.handlers.RouteHandler.prototype.fulfillActiveRoute_ = function(opt
 {
 	goog.asserts.assert(this.activeRoute_, 'No active route found');
 
-	if (!optReplace) {
-		goog.asserts.assert(this.lastRoute_, 'No previous route found');
-	}
-
 	var serializedRoute = dj.ext.router.models.RouteModel.serialize(this.activeRoute_);
 
 	if (this.activeRoute_.routeMethod == dj.ext.router.models.RouteModel.RouteMethod.DEFAULT ||

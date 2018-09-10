@@ -1,20 +1,31 @@
 {
 	"name": "@dorfjungs/google-closure-extlib",
-	"version": "1.1.2",
+	"version": "1.1.3",
 	"description": "A simple extension library for the underrated google closure library",
-	"keywords": ["google", "closure", "components", "dorfjungs", "javascript"],
+	"keywords": [
+		"google",
+		"closure",
+		"components",
+		"dorfjungs",
+		"javascript"
+	],
 	"homepage": "https://github.com/Dorfjungs/dj-library",
 	"repository": "https://github.com/Dorfjungs/dj-library",
 	"contributors": [
 		{
 			"name": "Davide Perozzi",
 			"email": "davide@dorfjungs.com",
-			"url": "http://dorfjungs.com/"
-		}
+			"url": "https://www.dorfjungs.com/"
+		},
+		{
+			"name": "Joshua Kekc",
+			"email": "joshua@dorfjungs.com",
+			"url": "https://www.dorfjungs.com/"
+		},
 	],
 	"license": {
 		"type": "MIT",
-    	"url": "http://www.opensource.org/licenses/mit-license.php"
+		"url": "http://www.opensource.org/licenses/mit-license.php"
 	},
 	"dependencies": {
 		"google-closure-library": "20180805.x"

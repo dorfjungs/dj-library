@@ -51,7 +51,7 @@ dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
 	 * @public
 	 * @type {string}
 	 */
-	this.pushUrl = goog.string.isEmptyString(this.loadUrl.getPath()) ? '/' : this.loadUrl.getPath();
+	this.pushUrl = dj.ext.router.models.RouteModel.getPushUrl(this.loadUrl);
 
 	/**
 	 * @public
@@ -151,4 +151,30 @@ dj.ext.router.models.RouteModel.serialize = function(route)
 		'parameters': dj.ext.utils.map.toObject(route.parameters),
 		'active': route.active
 	});
+};
+
+
+/**
+ * @public
+ * @param {goog.Uri} loadUrl
+ * @return {string}
+ */
+dj.ext.router.models.RouteModel.getPushUrl = function(loadUrl)
+{
+	var pushUrl;
+	if (goog.string.isEmptyString(loadUrl.getPath())) {
+		pushUrl = '/';
+	}
+	else {
+		pushUrl = loadUrl.getPath();
+	}
+
+	var queryData = loadUrl.getQueryData();
+	queryData.remove('ajax');
+	var queryString = queryData.toDecodedString();
+	if (queryString != '') {
+		pushUrl = pushUrl + '?' + queryString;
+	}
+
+	return pushUrl
 };

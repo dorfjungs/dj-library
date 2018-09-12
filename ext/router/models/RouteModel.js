@@ -13,9 +13,10 @@ goog.require('dj.ext.utils.map');
  * @param {string} uri
  * @param {string=} optTitle
  * @param {Map<string, string>|Object=} optParameters
+ * @param {Array<string>=} optIgnorePushParams
  * @param {string=} optId
  */
-dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
+dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optIgnorePushParams, optId)
 {
 	/**
 	 * @public
@@ -28,6 +29,12 @@ dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
      * @type {dj.ext.router.models.RouteModel}
      */
     this.parent = null;
+
+    /**
+     * @private
+     * @type {Array<string>}
+     */
+    this.ignorePushParams = optIgnorePushParams || [];
 
 	/**
 	 * @public
@@ -51,7 +58,7 @@ dj.ext.router.models.RouteModel = function(uri, optTitle, optParameters, optId)
 	 * @public
 	 * @type {string}
 	 */
-	this.pushUrl = dj.ext.router.models.RouteModel.getPushUrl(this.loadUrl);
+	this.pushUrl = dj.ext.router.models.RouteModel.parsePushUrl(this.loadUrl, this.ignorePushParams);
 
 	/**
 	 * @public
@@ -106,7 +113,8 @@ dj.ext.router.models.RouteModel.prototype.match = function(url)
 dj.ext.router.models.RouteModel.prototype.clone = function()
 {
 	var route = new dj.ext.router.models.RouteModel(
-		this.loadUrl.toString(), this.title, this.parameters, this.id);
+        this.loadUrl.toString(), this.title, this.parameters, this.ignorePushParams, this.id
+    );
 
     route.parent = this.parent;
 	route.loadMethod = this.loadMethod;
@@ -124,7 +132,7 @@ dj.ext.router.models.RouteModel.parse = function(string)
 {
 	var obj = JSON.parse(string);
 	var route = new dj.ext.router.models.RouteModel(
-		obj['url'], obj['title'], obj['parameters'], obj['id']
+		obj['url'], obj['title'], obj['parameters'], obj['ignorePushParams'], obj['id']
 	);
 
     route.parent = obj['parent'] ? dj.ext.router.models.RouteModel.parse(obj['parent']) : null;
@@ -147,7 +155,8 @@ dj.ext.router.models.RouteModel.serialize = function(route)
         'parent': route.parent ? dj.ext.router.models.RouteModel.serialize(route.parent) : null,
 		'title': route.title,
 		'loadMethod': route.loadMethod,
-		'routeMethod': route.routeMethod,
+        'routeMethod': route.routeMethod,
+        'ignorePushParams': route.ignorePushParams,
 		'parameters': dj.ext.utils.map.toObject(route.parameters),
 		'active': route.active
 	});
@@ -157,23 +166,27 @@ dj.ext.router.models.RouteModel.serialize = function(route)
 /**
  * @public
  * @param {goog.Uri} loadUrl
+ * @param {Array<string>} ignoreParams
  * @return {string}
  */
-dj.ext.router.models.RouteModel.getPushUrl = function(loadUrl)
+dj.ext.router.models.RouteModel.parsePushUrl = function(loadUrl, ignoreParams)
 {
-	var pushUrl;
+    var pushUrl;
+
 	if (goog.string.isEmptyString(loadUrl.getPath())) {
 		pushUrl = '/';
-	}
-	else {
+	} else {
 		pushUrl = loadUrl.getPath();
 	}
 
-	var queryData = loadUrl.getQueryData();
-	queryData.remove('ajax');
+    var queryData = loadUrl.getQueryData().clone();
+
+    ignoreParams.forEach(name => queryData.remove(name));
+
 	var queryString = queryData.toDecodedString();
-	if (queryString != '') {
-		pushUrl = pushUrl + '?' + queryString;
+
+    if (queryString != '') {
+		pushUrl += '?' + queryString;
 	}
 
 	return pushUrl

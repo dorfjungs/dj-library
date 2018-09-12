@@ -383,7 +383,7 @@ dj.ext.router.Router.prototype.addRoute = function(route)
 dj.ext.router.Router.prototype.addRouteByElement = function(element)
 {
 	var params = goog.dom.dataset.get(element, 'parameters');
-	var route = new dj.ext.router.models.RouteModel(
+	var route = this.createRoute(
 		this.getRouteUrlByElement_(element),
 		goog.dom.dataset.get(element, 'title') || '',
 		params ? /** @type {Object} */ (JSON.parse(params)) : undefined
@@ -419,7 +419,13 @@ dj.ext.router.Router.prototype.addRouteByElement = function(element)
  */
 dj.ext.router.Router.prototype.createRoute = function(url, optTitle, optParameters)
 {
-	var route = new dj.ext.router.models.RouteModel(url, optTitle, optParameters);
+	var route = new dj.ext.router.models.RouteModel(
+        url,
+        optTitle,
+        optParameters,
+        Array.from(this.routeParameters_.keys())
+    );
+
 	var queryData = route.loadUrl.getQueryData();
 
 	this.routeParameters_.forEach(function(value, key){
@@ -439,7 +445,6 @@ dj.ext.router.Router.prototype.getRouteUrlByElement_ = function(element)
 	switch (element.tagName.toLowerCase()) {
 		case 'a':
 			return element.getAttribute('href');
-			break;
 	}
 
 	return '';

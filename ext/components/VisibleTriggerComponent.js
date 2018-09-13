@@ -28,6 +28,12 @@ dj.ext.components.VisibleTriggerComponent = function()
 
     /**
      * @private
+     * @type {goog.math.Cooridnate}
+     */
+    this.startOffset_ = new goog.math.Coordinate();
+
+    /**
+     * @private
      * @type {goog.math.Coordinate}
      */
     this.visibleOffset_ = new goog.math.Coordinate();
@@ -43,6 +49,12 @@ dj.ext.components.VisibleTriggerComponent = function()
      * @type {boolean}
      */
     this.wasVisible_ = false;
+
+    /**
+     * @private
+     * @type {boolean}
+     */
+    this.visibilityLocked_ = false;
 
     /**
      * @private
@@ -112,10 +124,15 @@ dj.ext.components.VisibleTriggerComponent.prototype.ready = function()
 			}
 		}
 
-		// Set visible offsets
+		// Set visible offset
 		if (this.hasConfig('offset-y')) {
 			this.visibleOffset_.y = parseInt(this.getConfig('offset-y'), 10);
-		}
+        }
+
+        // Set start offset
+        if (this.hasConfig('start-y')) {
+            this.startOffset_.y = parseFloat(this.getConfig('start-y'));
+        }
 
 		// Initial update
 		if (this.offsetUpdateRate_ & dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_INIT) {
@@ -147,9 +164,16 @@ dj.ext.components.VisibleTriggerComponent.prototype.init = function()
  */
 dj.ext.components.VisibleTriggerComponent.prototype.updateOffset_ = function()
 {
+    this.updateSize_();
+
+    const visibleOffset = this.visibleOffset_.clone();
+
+    visibleOffset.x += this.elementSize_.width * this.startOffset_.x;
+    visibleOffset.y += this.elementSize_.height * this.startOffset_.y;
+
 	this.elementOffset_ = goog.math.Coordinate.sum(
 		goog.style.getPageOffset(this.getElement()),
-		/** @type {!goog.math.Coordinate} */ (this.visibleOffset_)
+		/** @type {!goog.math.Coordinate} */ (visibleOffset)
 	);
 };
 
@@ -237,11 +261,20 @@ dj.ext.components.VisibleTriggerComponent.prototype.updateVisiblity_ = function(
 		}
 	}
 
-	if (visible != this.visible_) {
-		this.visiblityChanged(visible);
-	}
+    this.setVisibility(visible);
+};
 
-	goog.dom.classlist.enable(this.getElement(), this.visibleClass_, this.visible_ = visible);
+/**
+ * @public
+ * @param {boolean} visible
+ */
+dj.ext.components.VisibleTriggerComponent.prototype.setVisibility = function(visible)
+{
+    if (visible != this.visible_) {
+        this.visiblityChanged(visible);
+    }
+
+    goog.dom.classlist.enable(this.getElement(), this.visibleClass_, this.visible_ = visible);
 };
 
 /**
@@ -319,6 +352,23 @@ dj.ext.components.VisibleTriggerComponent.prototype.setVisibleOffset = function(
 dj.ext.components.VisibleTriggerComponent.prototype.addResetMode = function(mode)
 {
     this.resetMode_ |= mode;
+};
+
+/**
+ * @public
+ */
+dj.ext.components.VisibleTriggerComponent.prototype.hide = function()
+{
+    this.setVisibility(false);
+};
+
+/**
+ * @public
+ * @param {optLock} optLock
+ */
+dj.ext.components.VisibleTriggerComponent.prototype.lock = function(optLock)
+{
+    this.visiblityLocked_ = !!optLock;
 };
 
 /**

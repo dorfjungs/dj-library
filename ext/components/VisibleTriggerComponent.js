@@ -364,6 +364,31 @@ dj.ext.components.VisibleTriggerComponent.prototype.hide = function()
 
 /**
  * @public
+ */
+dj.ext.components.VisibleTriggerComponent.prototype.hideIfWasVisible = function()
+{
+    this.setVisibility(!this.wasVisible_);
+};
+
+
+/**
+ * @public
+ */
+dj.ext.components.VisibleTriggerComponent.prototype.show = function()
+{
+    this.setVisibility(true);
+};
+
+/**
+ * @public
+ */
+dj.ext.components.VisibleTriggerComponent.prototype.showIfWasVisible = function()
+{
+    this.setVisibility(this.wasVisible_);
+};
+
+/**
+ * @public
  * @param {optLock} optLock
  */
 dj.ext.components.VisibleTriggerComponent.prototype.lock = function(optLock)

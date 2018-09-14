@@ -143,7 +143,7 @@ dj.sys.managers.ComponentManager.InitializationMethod = {
 /**
  * @param {string} name
  * @param {Function} ctor
- * @param {Array<dj.sys.models.config.AbstractConfigModel>=} optConfig
+ * @param {Array<dj.sys.models.config.AbstractConfigModel|Object>=} optConfig
  * @param {number=} optRules
  */
 dj.sys.managers.ComponentManager.prototype.add = function(name, ctor, optConfig, optRules)
@@ -230,7 +230,8 @@ dj.sys.managers.ComponentManager.prototype.update = function(optClasses, optScop
 	// Load current stack
 	return new goog.Promise(function(resolve, reject){
 		this.loadComponentStack_(this.iniitalizationMethod_).then(function(){
-			resolve(this.lastComponentStack_);
+            resolve(this.lastComponentStack_);
+            this.checkComponentsIntegrity_(this.lastComponentStack_);
 		}, reject, this);
 	}, this);
 };
@@ -342,7 +343,7 @@ dj.sys.managers.ComponentManager.prototype.initComponent = function(component)
 
 						component.setInitialized(true);
 						component.setPendingPromise(null);
-						resolver.resolve();
+                        resolver.resolve();
 					},
 					resolver.reject,
 					this
@@ -352,6 +353,34 @@ dj.sys.managers.ComponentManager.prototype.initComponent = function(component)
 	}
 
 	return resolver.promise;
+};
+
+/**
+ * @private
+ * @param {Array<dj.sys.components.AbstractComponent>} components
+ */
+dj.sys.managers.ComponentManager.prototype.checkComponentsIntegrity_ = function(components)
+{
+    if (goog.DEBUG) {
+        setTimeout(() => {
+            const elements = components.map(cmp => cmp.getElement());
+            const uniqueElements = elements.filter((el, index, arr) => arr.indexOf(el) !== index);
+
+            uniqueElements.forEach(element => {
+                const usedComponents = components.filter(cmp => cmp.getElement() === element).map(cmp => {
+                    return cmp.getName().replace(/  +|\n/gi, '');
+                });
+
+                console.warn(
+                    `[Extlib][ComponentManager]
+                    ## Element used by multiple components:
+                    ### Element:`.replace(/  +/g, ''),
+                    element,
+                    `\n### Component: ${usedComponents.join('\n### Component: ')}`.replace(/  +/g, '')
+                );
+            });
+        });
+    };
 };
 
 /**
@@ -389,7 +418,6 @@ dj.sys.managers.ComponentManager.prototype.loadComponentStack_ = function(method
 	}
 	else if (method == dj.sys.managers.ComponentManager.InitializationMethod.SEQUENTIAL) {
 		return this.loadNextComponent_();
-
 	}
 
 	return goog.Promise.resolve();
@@ -529,7 +557,7 @@ dj.sys.managers.ComponentManager.prototype.isBase64_ = function(str)
 dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(name, element)
 {
 	var componentConfig = this.componentConfig_.get(name);
-	var dynamicConfig = element.getAttribute(this.attributeConfig_);
+    var dynamicConfig = element.getAttribute(this.attributeConfig_);
 	var componentModel = new dj.sys.models.ComponentModel(
 		this.getNextUid_(),
 		name,
@@ -537,16 +565,16 @@ dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(nam
 		componentConfig.class,
 		componentConfig.config,
 		componentConfig.rules
-	);
+    );
 
 	if (dynamicConfig) {
 		if (this.isBase64_(dynamicConfig)) {
 			dynamicConfig = goog.crypt.base64.decodeString(dynamicConfig);
 		}
-		
-		// Remove trailing commas from json, since we're using the 
-		// native parser. The previous parse method from google closure 
-		// (which is now depcrecated) allowed trailing commas in the 
+
+		// Remove trailing commas from json, since we're using the
+		// native parser. The previous parse method from google closure
+		// (which is now depcrecated) allowed trailing commas in the
 		// json structure. To ensure maximum compatibility with old instances
 		// We're killing them here.
 		dynamicConfig = dynamicConfig.replace(/\,(?!\s*?[\{\[\"\'\w])/g, '');
@@ -559,7 +587,26 @@ dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(nam
 				`[Extlib][ComponentManager] Invalid component config given for "${name}": ${err}`
 			);
 		}
-	}
+    }
+
+    // Merge dynamic config with static config (where dynamic config > static config)
+    if (componentModel.staticConfig) {
+        goog.asserts.assert(
+            goog.typeOf(componentModel.staticConfig) === 'array',
+            `[Extlib][ComponentManager] Invalid static config given (needs to be array). For "${componentConfig.name}"`
+        );
+
+        componentModel.staticConfig.forEach(config => {
+            if (typeof config === 'object' && !(config instanceof dj.sys.models.config.AbstractConfigModel)) {
+                for (const key in config) {
+                    if ( ! componentModel.dynamicConfig.hasOwnProperty(key)) {
+                        componentModel.dynamicConfig[key] = config[key];
+                    }
+                }
+            }
+        });
+    }
+
 
 	this.parseStaticConfig_(componentModel, componentConfig.config);
 
@@ -751,7 +798,7 @@ dj.sys.managers.ComponentManager.prototype.getModelsByName = function(name, optN
 
 	return dj.ext.utils.map.create(
 		goog.object.filter(
-			dj.ext.utils.map.toObject(models), 
+			dj.ext.utils.map.toObject(models),
 			function(model){
 				return model.name == name;
 			}
@@ -812,7 +859,7 @@ dj.sys.managers.ComponentManager.prototype.getComponentsByName = function(name, 
 
 	return dj.ext.utils.map.create(
 		goog.object.filter(
-			dj.ext.utils.map.toObject(components), 
+			dj.ext.utils.map.toObject(components),
 			function(component){
 				return component.getName() == name;
 			}

@@ -28,7 +28,7 @@ dj.ext.components.VisibleTriggerComponent = function()
 
     /**
      * @private
-     * @type {goog.math.Cooridnate}
+     * @type {goog.math.Coordinate}
      */
     this.startOffset_ = new goog.math.Coordinate();
 
@@ -389,7 +389,7 @@ dj.ext.components.VisibleTriggerComponent.prototype.showIfWasVisible = function(
 
 /**
  * @public
- * @param {optLock} optLock
+ * @param {boolean=} optLock
  */
 dj.ext.components.VisibleTriggerComponent.prototype.lock = function(optLock)
 {

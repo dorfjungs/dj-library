@@ -597,6 +597,8 @@ dj.sys.managers.ComponentManager.prototype.parseComponentElement_ = function(nam
         );
 
         componentModel.staticConfig.forEach(config => {
+            config = /** @type Object */ (config);
+
             if (typeof config === 'object' && !(config instanceof dj.sys.models.config.AbstractConfigModel)) {
                 for (const key in config) {
                     if ( ! componentModel.dynamicConfig.hasOwnProperty(key)) {

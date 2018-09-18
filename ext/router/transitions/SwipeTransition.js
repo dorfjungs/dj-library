@@ -190,7 +190,7 @@ dj.ext.router.transitions.SwipeTransition.prototype.cycleEnded = function()
 };
 
 /** @private */
-mackmedia.router.transitions.LayerSwipeTransition.prototype.clearTimeouts_ = function()
+dj.ext.router.transitions.SwipeTransition.prototype.clearTimeouts_ = function()
 {
     for (var i = 0, len = this.timeouts_.length; i < len; i++) {
         clearTimeout(this.timeouts_[i]);

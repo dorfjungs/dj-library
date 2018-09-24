@@ -264,6 +264,14 @@ dj.ext.components.VisibleTriggerComponent.prototype.updateVisiblity_ = function(
     this.setVisibility(visible);
 };
 
+/** @public */
+dj.ext.components.VisibleTriggerComponent.prototype.update = function()
+{
+    this.updateOffset_();
+    this.updateSize_();
+    this.updateVisiblity_();
+};
+
 /**
  * @public
  * @param {boolean} visible

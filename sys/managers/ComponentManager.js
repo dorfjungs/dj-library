@@ -10,6 +10,7 @@ goog.require('goog.crypt.base64');
 goog.require('goog.events.EventTarget');
 
 // dj
+goog.require('dj.ext.utils.map');
 goog.require('dj.sys.models.ComponentModel');
 goog.require('dj.sys.parsers.ElementConfigParser');
 goog.require('dj.sys.parsers.ElementsConfigParser');

@@ -1,6 +1,6 @@
 {
 	"name": "@dorfjungs/google-closure-extlib",
-	"version": "1.1.10",
+	"version": "1.1.11",
 	"description": "A simple extension library for the underrated google closure library",
 	"keywords": [
 		"google",
@@ -23,10 +23,7 @@
 			"url": "https://www.dorfjungs.com/"
 		}
 	],
-	"license": {
-		"type": "MIT",
-		"url": "http://www.opensource.org/licenses/mit-license.php"
-	},
+	"license": "MIT",
 	"dependencies": {
 		"google-closure-library": "20180805.x"
 	}

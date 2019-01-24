@@ -324,8 +324,10 @@ dj.sys.managers.ComponentManager.prototype.initComponent = function(component)
 	else {
 		var ready = component.ready();
 
-		goog.asserts.assert(ready instanceof goog.Promise,
-			'Ready function needs to return a promise for ' + component.getName());
+		goog.asserts.assert(
+			ready instanceof goog.Promise || ready instanceof Promise,
+			'Ready function needs to return a promise for ' + component.getName()
+		);
 
 		component.setPendingPromise(resolver.promise);
 
@@ -345,12 +347,11 @@ dj.sys.managers.ComponentManager.prototype.initComponent = function(component)
 						component.setInitialized(true);
 						component.setPendingPromise(null);
                         resolver.resolve();
-					},
-					resolver.reject,
-					this
+					}.bind(this),
+					resolver.reject
 				);
 			}
-		}, null, this);
+		}.bind(this), null);
 	}
 
 	return resolver.promise;

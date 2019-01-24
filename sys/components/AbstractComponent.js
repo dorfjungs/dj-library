@@ -58,7 +58,7 @@ goog.inherits(
 
 /**
  * @export
- * @return {goog.Promise}
+ * @return {goog.Promise|Promise}
  */
 dj.sys.components.AbstractComponent.prototype.ready = function()
 {
@@ -67,7 +67,7 @@ dj.sys.components.AbstractComponent.prototype.ready = function()
 
 /**
  * @export
- * @return {goog.Promise}
+ * @return {goog.Promise|Promise}
  */
 dj.sys.components.AbstractComponent.prototype.init = function()
 {

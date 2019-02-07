@@ -45,7 +45,25 @@ dj.ext.components.AutoSizeComponent.prototype.handleResize = function()
 {
     dj.ext.components.AutoSizeComponent.base(this, 'handleResize');
 
-    goog.async.nextTick(this.setContentSize_, this);
+    this.resetSize_();
+
+    setTimeout(function(){
+      goog.async.nextTick(this.setContentSize_, this)
+    }.bind(this), 10);
+};
+
+/**
+ * @private
+ */
+dj.ext.components.AutoSizeComponent.prototype.resetSize_ = function()
+{
+  if (!this.getConfig('ignore-height')) {
+    goog.style.setStyle(this.getElement(), 'height', '');
+  }
+
+  if (!this.getConfig('ignore-width')) {
+    goog.style.setStyle(this.getElement(), 'width', '');
+  }
 };
 
 /**

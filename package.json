@@ -1,6 +1,6 @@
 {
 	"name": "@dorfjungs/google-closure-extlib",
-	"version": "1.1.12",
+	"version": "1.1.13",
 	"description": "A simple extension library for the underrated google closure library",
 	"keywords": [
 		"google",

@@ -257,7 +257,7 @@ dj.sys.managers.ComponentManager.prototype.prepare = function(selector, optScope
             var elements = this.queryComponentElements_(rootElement, config.name);
 
             for (var ii = 0, len1 = elements.length; ii < len1; ii++) {
-                components.push(this.prepareElement_(elements[ii]));
+                components.push(this.prepareElement_(elements[ii], config));
             }
         }
         else {
@@ -278,11 +278,12 @@ dj.sys.managers.ComponentManager.prototype.prepare = function(selector, optScope
 /**
  * @private
  * @param {Element} element
+ * @param {dj.sys.managers.ComponentManager.ComponentConfig=} optConfig
  * @return {dj.sys.components.AbstractComponent}
  */
-dj.sys.managers.ComponentManager.prototype.prepareElement_ = function(element)
+dj.sys.managers.ComponentManager.prototype.prepareElement_ = function(element, optConfig)
 {
-    var name = element.getAttribute(this.attributeName_);
+    var name = optConfig ? optConfig.name : element.getAttribute(this.attributeName_);
     var config = this.componentConfig_.get(name);
 
     goog.asserts.assert(config, 'Config for component "' + name + '" not found');

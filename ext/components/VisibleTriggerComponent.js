@@ -166,10 +166,11 @@ dj.ext.components.VisibleTriggerComponent.prototype.updateOffset_ = function()
 {
     this.updateSize_();
 
-    const visibleOffset = this.visibleOffset_.clone();
+	const visibleOffset = this.visibleOffset_.clone();
+	const windowSize = this.getWindowSize();
 
-    visibleOffset.x += this.elementSize_.width * this.startOffset_.x;
-    visibleOffset.y += this.elementSize_.height * this.startOffset_.y;
+    visibleOffset.x += windowSize.width * this.startOffset_.x;
+    visibleOffset.y += windowSize.height * this.startOffset_.y;
 
 	this.elementOffset_ = goog.math.Coordinate.sum(
 		goog.style.getPageOffset(this.getElement()),

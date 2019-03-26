@@ -134,15 +134,6 @@ dj.ext.components.VisibleTriggerComponent.prototype.ready = function()
             this.startOffset_.y = parseFloat(this.getConfig('start-y'));
         }
 
-		// Initial update
-		if (this.offsetUpdateRate_ & dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_INIT) {
-			this.updateOffset_();
-		}
-
-		if (this.sizeUpdateRate_ & dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_INIT) {
-			this.updateSize_();
-		}
-
 		goog.async.nextTick(resolve);
 	});
 };
@@ -153,6 +144,15 @@ dj.ext.components.VisibleTriggerComponent.prototype.init = function()
 	return this.baseInit(dj.ext.components.VisibleTriggerComponent, function(resolve, reject){
 		this.listenResize();
 		this.listenScroll();
+
+		// Initial update
+		if (this.offsetUpdateRate_ & dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_INIT) {
+			this.updateOffset_();
+		}
+
+		if (this.sizeUpdateRate_ & dj.ext.components.VisibleTriggerComponent.UpdateRate.ON_INIT) {
+			this.updateSize_();
+		}
 
 		goog.async.nextTick(this.updateVisiblity_, this);
 		goog.async.nextTick(resolve, this);

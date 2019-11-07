@@ -195,18 +195,28 @@ dj.sys.managers.ComponentManager.prototype.update = function(optClasses, optScop
 
 		// Creating the component models
 		goog.array.forEach(elements, function(element){
-			var model = this.parseComponentElement_(name, element);
+			let exists = false;
 
-			if (model.hasRule(dj.sys.managers.ComponentManager.ComponentRules.DENY_MULTIPLE)) {
-				if (this.getModelsByName(name).size >= 1) {
-					throw new Error('The component "' + name + '" can\'t exist multiple times');
+			this.components_.forEach(cmp => {
+				if (cmp.getElement() === element) {
+					exists = true;
 				}
+			});
+
+			if ( ! exists) {
+				var model = this.parseComponentElement_(name, element);
+
+				if (model.hasRule(dj.sys.managers.ComponentManager.ComponentRules.DENY_MULTIPLE)) {
+					if (this.getModelsByName(name).size >= 1) {
+						throw new Error('The component "' + name + '" can\'t exist multiple times');
+					}
+				}
+
+				element.setAttribute(this.attributeId_, model.id);
+				componentModels.push(model);
+
+				this.componentModels_.set(model.id, model);
 			}
-
-			element.setAttribute(this.attributeId_, model.id);
-			componentModels.push(model);
-
-			this.componentModels_.set(model.id, model);
 		}, this);
 	}, this);
 

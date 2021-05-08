@@ -25,6 +25,6 @@
 	],
 	"license": "MIT",
 	"dependencies": {
-		"google-closure-library": "20180805.x"
+		"google-closure-library": "20200315.x"
 	}
 }
